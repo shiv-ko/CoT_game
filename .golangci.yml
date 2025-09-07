@@ -12,8 +12,8 @@ linters:
     - revive
     - gofumpt
     - misspell
-    - gosec # セキュリティ（必要に応じて外してOK）
-    - cyclop # 複雑度チェック
+    - gosec
+    - cyclop
   disable:
     - depguard
 
