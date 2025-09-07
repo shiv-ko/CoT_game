@@ -30,9 +30,9 @@ async function fetchApi<T>(path: string, options: RequestInit = {}): Promise<T> 
   } catch (error) {
     console.error('API Error:', error);
     if (error instanceof Error) {
-        throw error;
+      throw error;
     } else {
-        throw new Error('An unknown error occurred');
+      throw new Error('An unknown error occurred');
     }
   }
 }
