@@ -18,7 +18,7 @@ This document is the authoritative instruction the AI assistant (Codex CLI) must
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
 - Format: `type(scope?): subject`
-- Subject: imperative, English, 50 chars or less (including type/scope). No period.
+- Subject: imperative, , 50 chars or less (including type/scope). No period.
 - Body: English, wrap at ~72 chars. Explain the “why/what”, not implementation minutiae.
 - Footers (when applicable):
   - `BREAKING CHANGE: ...`
@@ -43,20 +43,22 @@ Co-authored-by: Codex CLI <codex@example.com>
 
 ---
 
-### 2) How the AI should commit (step-by-step)
+### 2) AIのコミット手順（必須）
 
-1. Stage only the intended files (no unrelated changes).
-2. Compose a subject in English (<= 50 chars, imperative).
-3. Add a short body when it clarifies motivation or scope.
-4. Always append the co‑author trailer line shown above.
-5. If Husky hooks would block progress for minor config/doc changes, use `--no-verify` after explicit approval.
+1. `npm run format` を実行して全体を整形する。
+2. 関連する変更ファイルのみをステージする（無関係な差分は含めない）。
+3. 件名を日本語・命令形・50文字以内で作成する。
+4. 必要なら本文を短く追記する（「なぜ/何を」）。
+5. 本文末尾に共同作者トレーラーを必ず付与する。
+6. Husky等でブロックされる軽微変更（ドキュメント/設定）のみ、必要に応じて `--no-verify` を使用可。
 
-Command template
+コマンド例
 
 ```bash
+npm run format
 git add <files>
-git commit -m "<type>: <subject>" \
-           -m "<optional body>" \
+git commit -m "<type>: <日本語の件名>" \
+           -m "<必要なら本文>" \
            -m "Co-authored-by: Codex CLI <codex@example.com>"
 ```
 
@@ -98,10 +100,10 @@ De‑duplication: if you need to avoid duplicate trailers, add a small sed/grep 
 
 ---
 
-### 5) Language requirements
+### 5) 言語ポリシー
 
-- Commit messages: English only.
-- Code comments: Japanese is acceptable for in‑code documentation per project policy; however messages remain English.
+- コミットメッセージ: 日本語のみ。
+- コード内コメント: 日本語を基本とし、必要に応じて英語を併記可。
 
 ---
 
