@@ -46,7 +46,7 @@ export default [
       'prettier/prettier': 'error',
 
       // JS/TS 共通
-      "no-console": ["warn", { allow: ["warn", "error", "info"] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-debugger': 'error',
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
