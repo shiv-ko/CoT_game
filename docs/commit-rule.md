@@ -8,7 +8,7 @@ When generating git commit messages:
 - Be specific but concise
 - No periods at the end
 - Format: `prefix: message`
-- **Language**: Always use English for commit messages
+- **Language**: Always use Japanese for commit messages
 
 ### Prefix Rules (Angular Convention):
 
