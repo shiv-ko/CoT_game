@@ -1,39 +1,46 @@
 version: '3.8'
 
 services:
-  frontend:
+  frontend: #FE開発環境
+    # frontend内のディレクトリにあるDockerFileを使ってビルド
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
+    # コードをコンテナにリアルタイムで反映させるためのもの
+    # ホットリロード=ファイルを保存したらアプリが自動更新
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    # backend が起動してから立ち上がる
     depends_on:
       - backend
+    # 環境変数でAPIのURLを指定(BEとの通信のため)
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8081
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8081:8080"
+      - '8080:8080'
     volumes:
       - ./backend:/app
     depends_on:
       - db
     env_file:
       - .env
-
+  # dbはすでにあるイメージを使用
   db:
     image: postgres:14-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
+    # 永続化ストレージ
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # 初回起動時にテーブル作成や初期データなどを自動投入(init.sqlにあるもの)
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - .env
