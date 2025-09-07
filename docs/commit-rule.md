@@ -1,5 +1,7 @@
 ## Git Commit Messages
+
 When generating git commit messages:
+
 - **ALWAYS use a prefix** (feat, fix, docs, style, refactor, perf, test, chore)
 - Keep the main message under 50 characters INCLUDING the prefix
 - Use imperative mood after the prefix
@@ -9,6 +11,7 @@ When generating git commit messages:
 - **Language**: Always use English for commit messages
 
 ### Prefix Rules (Angular Convention):
+
 - `feat:` A new feature
 - `fix:` A bug fix
 - `docs:` Documentation only changes
@@ -19,4 +22,5 @@ When generating git commit messages:
 - `chore:` Changes to the build process or auxiliary tools and libraries
 
 ### Code Comments Language:
-Use Japanese comments 
+
+Use Japanese comments
