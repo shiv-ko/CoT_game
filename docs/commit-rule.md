@@ -5,6 +5,7 @@ This document is the authoritative instruction the AI assistant (Codex CLI) must
 ---
 
 ### 0) Scope and Identity
+
 - Author identity: use the local git config of the repository (already set to the human owner).
 - Co‑authoring: every commit created by the AI MUST include Codex CLI as a co‑author.
   - Co‑author trailer to append to every commit body:
@@ -14,6 +15,7 @@ This document is the authoritative instruction the AI assistant (Codex CLI) must
 ---
 
 ### 1) Message Style (Conventional Commits / Angular style)
+
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`.
 - Format: `type(scope?): subject`
 - Subject: imperative, English, 50 chars or less (including type/scope). No period.
@@ -23,6 +25,7 @@ This document is the authoritative instruction the AI assistant (Codex CLI) must
   - `Co-authored-by: Codex CLI <codex@example.com>` (always present for AI commits)
 
 Examples
+
 ```
 feat(backend): add /solve endpoint
 
@@ -41,6 +44,7 @@ Co-authored-by: Codex CLI <codex@example.com>
 ---
 
 ### 2) How the AI should commit (step-by-step)
+
 1. Stage only the intended files (no unrelated changes).
 2. Compose a subject in English (<= 50 chars, imperative).
 3. Add a short body when it clarifies motivation or scope.
@@ -48,6 +52,7 @@ Co-authored-by: Codex CLI <codex@example.com>
 5. If Husky hooks would block progress for minor config/doc changes, use `--no-verify` after explicit approval.
 
 Command template
+
 ```bash
 git add <files>
 git commit -m "<type>: <subject>" \
@@ -58,7 +63,9 @@ git commit -m "<type>: <subject>" \
 ---
 
 ### 3) Commit Template (optional but recommended)
+
 Create a commit message template at the repo root and configure git.
+
 ```bash
 cat > .gitmessage <<'MSG'
 <type>(<optional scope>): <subject in English, <=50 chars>
@@ -74,7 +81,9 @@ git config --local commit.template .gitmessage
 ---
 
 ### 4) Bulk co‑authoring for existing history (advanced)
+
 Warning: rewrites history; coordinate with collaborators. Force‑push required.
+
 ```bash
 git branch backup/coauthor-$(date +%Y%m%d)
 export FILTER_BRANCH_SQUELCH_WARNING=1
@@ -84,23 +93,25 @@ printf "\nCo-authored-by: Codex CLI <codex@example.com>\n"
 ' --tag-name-filter cat -- --branches --tags
 git push --force-with-lease origin main --tags
 ```
+
 De‑duplication: if you need to avoid duplicate trailers, add a small sed/grep guard to the `--msg-filter` script.
 
 ---
 
 ### 5) Language requirements
+
 - Commit messages: English only.
 - Code comments: Japanese is acceptable for in‑code documentation per project policy; however messages remain English.
 
 ---
 
 ### 6) Quality checklist for the AI before committing
+
 - [ ] Only the intended files are staged
 - [ ] Subject is imperative, English, <= 50 chars
 - [ ] Body (if present) explains why/what
 - [ ] Includes `Co-authored-by: Codex CLI <codex@example.com>`
 - [ ] No secrets or tokens are present in the diff
-
 
 ---
 
