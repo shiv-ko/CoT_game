@@ -1,0 +1,29 @@
+run:
+  timeout: 3m
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - gosimple
+    - errcheck
+    - ineffassign
+    - revive
+    - gofumpt
+    - misspell
+    - gosec # セキュリティ（必要に応じて外してOK）
+    - cyclop # 複雑度チェック
+  disable:
+    - depguard
+
+linters-settings:
+  misspell:
+    locale: US
+  cyclop:
+    max-complexity: 15
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
