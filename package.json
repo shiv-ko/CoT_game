@@ -1,0 +1,40 @@
+{
+  "name": "cot_game",
+  "version": "1.0.0",
+  "description": "本リポジトリは「プロンプトバトルWebアプリ」のモノレポ構成です。フロントエンド（Next.js）／バックエンド（Go）／DB（PostgreSQL）／ドキュメントで構成されています。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "lint:fe": "cd frontend && npx eslint .",
+    "lint:go": "golangci-lint run ./backend/...",
+    "lint": "npm run lint:fe && npm run lint:go",
+    "prepare": "husky"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^9.35.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "*.{md,mdx,json,yml,yaml}": "prettier --write",
+    "docker-compose.yml": "prettier --write",
+    "frontend/**/*.{js,jsx,ts,tsx,css,scss}": [
+      "prettier --write",
+      "cd frontend && eslint --fix"
+    ],
+    "backend/**/*.go": [
+      "gofumpt -l -w",
+      "golangci-lint run --out-format=colored-line-number"
+    ]
+  }
+}
