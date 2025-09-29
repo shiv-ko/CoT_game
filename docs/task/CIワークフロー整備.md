@@ -1,0 +1,40 @@
+# CIワークフロー整備
+
+## 目的 / 背景
+
+- 品質自動化 (lint/test/build) を GitHub Actions で実施 (`docs/plan_0907.md` Sprint3品質)。
+
+## 完了条件
+
+- `.github/workflows/ci.yml` 作成。
+- ジョブ: backend (go vet/test), frontend (npm ci + lint + build), docker build (オプションCache)。
+- PR 作成時自動実行。
+- README にバッジ追加 (後続ドキュメント補強タスクで更新)。
+
+## スコープ
+
+- 含む: Go 1.x matrix1件, Node 20.x。
+- 含まない: CDデプロイ, セキュリティスキャン。
+
+## 作業手順
+
+- [ ] Workflow yaml 作成
+- [ ] キャッシュ設定 (actions/cache)
+- [ ] go test ./...
+- [ ] npm run lint / build
+- [ ] docker build --no-cache (optional)
+
+## 依存関係 / リスク
+
+- 依存: リポジトリ構成安定
+- リスク: ビルド時間長 → キャッシュ導入
+
+## 見積り / 担当 / 期日
+
+- 見積り: 1人日
+- 担当: 未定
+- 期日: Sprint2 or 3 早期 (2025-09-20)
+
+## 参考リンク
+
+- `../plan_0907.md`
