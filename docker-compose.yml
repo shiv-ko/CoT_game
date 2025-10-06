@@ -31,7 +31,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - ./backend/.env
   # dbはすでにあるイメージを使用
   db:
     image: postgres:14-alpine
@@ -43,7 +43,7 @@ services:
       # 初回起動時にテーブル作成や初期データなどを自動投入(init.sqlにあるもの)
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - .env
+      - ./db/.env
 
 volumes:
   postgres_data:
