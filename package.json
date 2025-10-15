@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
     "lint:fe": "cd frontend && npx eslint .",
-    "lint:go": "golangci-lint run ./backend/...",
+    "lint:go": "cd backend && golangci-lint run ./...",
     "lint": "npm run lint:fe && npm run lint:go",
     "prepare": "husky"
   },
@@ -21,6 +21,7 @@
     "eslint": "^9.35.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "golangci-lint": "^0.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
@@ -34,7 +35,7 @@
     ],
     "backend/**/*.go": [
       "go run mvdan.cc/gofumpt@v0.6.0 -l -w",
-      "go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.60.1 run --out-format=colored-line-number"
+      "cd backend && golangci-lint run ./..."
     ]
   }
 }
