@@ -33,7 +33,7 @@
       "cd frontend && eslint --fix"
     ],
     "backend/**/*.go": [
-      "gofumpt -l -w",
+      "go run mvdan.cc/gofumpt@v0.6.0 -l -w",
       "golangci-lint run --out-format=colored-line-number"
     ]
   }
