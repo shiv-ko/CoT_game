@@ -25,17 +25,5 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2"
-  },
-  "lint-staged": {
-    "*.{md,mdx,json,yml,yaml}": "prettier --write",
-    "docker-compose.yml": "prettier --write",
-    "frontend/**/*.{js,jsx,ts,tsx,css,scss}": [
-      "prettier --write",
-      "cd frontend && eslint --fix"
-    ],
-    "backend/**/*.go": [
-      "go run mvdan.cc/gofumpt@v0.6.0 -l -w",
-      "cd backend && golangci-lint run ./..."
-    ]
   }
 }

@@ -1,2 +1,2 @@
-#!/bin/sh
-npx lint-staged
+export PATH="$HOME/.local/bin:$HOME/go/bin:$(go env GOPATH 2>/dev/null)/bin:$PATH"
+npm exec -- lint-staged
