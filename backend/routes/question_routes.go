@@ -1,3 +1,4 @@
+// Package routes は HTTP ルートのグルーピングとマッピングを管理します。
 package routes
 
 import (
@@ -13,8 +14,8 @@ func RegisterQuestionRoutes(api *gin.RouterGroup, h *handlers.QuestionHandler) {
 	// 例: /api/v1/questions
 	questionRoutes := api.Group("/questions")
 	{
-		// グループのルートパスにGETエンドポイントを登録します。
-		//最終的なパスは /api/v1/questions となります。
+		// /api/v1/questions（末尾に / でもOK）に GET を登録。
+		// 最終的なパスは /api/v1/questions となります。
 		// このエンドポイントは、全ての問題のリストを取得します。
 		questionRoutes.GET("", h.GetQuestions)
 	}
