@@ -1,0 +1,15 @@
+# backend/.golangci.yml
+version: '2'
+
+run:
+  timeout: 3m
+
+linters:
+  enable:
+    - govet
+    - staticcheck # gosimple/unused相当もここに含まれる
+    - ineffassign
+    - errcheck
+    - revive # 推奨（スタイル系）
+    - gocritic # 推奨（バグっぽいパターン）
+
