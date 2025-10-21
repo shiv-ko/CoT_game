@@ -29,7 +29,7 @@
 - [ ] scores 保存 (リポジトリ層利用)
 - [ ] JSON 応答生成
 - [ ] ルート登録 `routes/solve_routes.go`
-- [ ] 結合テスト (Geminiモック)
+- [ ] 結合テスト (Gemini)
 
 ## 依存関係 / リスク
 

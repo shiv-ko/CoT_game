@@ -145,9 +145,9 @@ jobs:
         run: go test ./... -v
 
       - name: GolangCI-Lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
-          version: v1.60
+          version: v2.3.0
           working-directory: ${{ env.BACKEND_DIR }}
           args: --timeout=5m
 

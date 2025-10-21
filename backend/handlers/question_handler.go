@@ -1,3 +1,4 @@
+// Package handlers は HTTP リクエストを処理しレスポンスを生成するコントローラ層を提供します。
 package handlers
 
 import (
@@ -56,7 +57,7 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	// 行のイテレーション中に発生したエラーを確認します。
 	if err := rows.Err(); err != nil {
 		log.Printf("質問行のイテレーション中にエラーが発生しました: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "質問の取得中にエラーが発生しました。"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "質問の取得中にエラーが発生しました。"})
 		return
 	}
 

@@ -1,3 +1,4 @@
+// Package models はデータベースや外部入出力に対応するドメインオブジェクトを提供します。
 package models
 
 import "time"
