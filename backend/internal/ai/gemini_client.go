@@ -173,7 +173,7 @@ func (c *GeminiClient) invoke(ctx context.Context, body []byte) (Response, error
 	}
 
 	// REST API は API キーをヘッダ・クエリのいずれでも受け付ける。
-	// 再読性向上のため両方に設定している。
+	// 可読性向上のため両方に設定している。
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Goog-Api-Key", c.config.APIKey)
 
