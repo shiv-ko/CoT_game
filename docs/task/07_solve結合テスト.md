@@ -18,9 +18,9 @@
 
 ## 作業手順
 
-- [ ] モックAIサーバー
-- [ ] テストDB (transaction rollback) or テンポラリテーブル
-- [ ] 成功/失敗/validation ケース
+- [x] モックAIサーバー
+- [x] テストDB (transaction rollback) or テンポラリテーブル
+- [x] 成功/失敗/validation ケース
 
 ## 依存関係 / リスク
 
