@@ -1,0 +1,24 @@
+# .github/workflows/pr-title-first-commit.yml
+name: Use first commit as PR title
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  set-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set PR title to first commit subject
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const commits = await github.rest.pulls.listCommits({ owner, repo, pull_number: number, per_page: 250 });
+            if (!commits.data.length) return;
+            // 一番最初（古い方）のコミット
+            const first = commits.data[0].commit.message.split('\n')[0].trim();
+            if (!first) return;
+            await github.rest.pulls.update({ owner, repo, pull_number: number, title: first });
