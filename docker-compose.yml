@@ -42,6 +42,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # 初回起動時にテーブル作成や初期データなどを自動投入(init.sqlにあるもの)
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./db/migrations:/docker-entrypoint-initdb.d/migrations
     env_file:
       - ./db/.env
 

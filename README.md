@@ -23,6 +23,8 @@ backend/
 
 db/
   init.sql
+  migrations/
+    20251024_add_scores_columns.sql
 
 docker-compose.yml
 
@@ -65,6 +67,48 @@ frontend/
   types/
     auth.ts
 ```
+
+## データベースマイグレーション
+
+`db/migrations/` ディレクトリにマイグレーションファイルを管理しています。
+
+### 初回セットアップ
+
+初回の `docker-compose up` 時に `db/init.sql` が自動実行され、基本的なテーブル構造が作成されます。
+
+### マイグレーションの適用手順
+
+マイグレーションファイルは手動で適用する必要があります。以下の手順で実行してください:
+
+```bash
+# 1. PostgreSQL コンテナに接続
+docker-compose exec db psql -U postgres -d cot_game
+
+# 2. マイグレーションファイルを実行
+\i /docker-entrypoint-initdb.d/migrations/20251024_add_scores_columns.sql
+
+# 3. 正常に適用されたか確認
+\d scores
+```
+
+### ロールバック方法
+
+問題が発生した場合は、各マイグレーションファイル内にコメントで記載されているロールバック SQL を実行してください。
+
+例（`20251024_add_scores_columns.sql` のロールバック）:
+
+```sql
+ALTER TABLE scores
+DROP COLUMN model_vendor,
+DROP COLUMN model_name,
+DROP COLUMN answer_number,
+DROP COLUMN latency_ms,
+DROP COLUMN evaluation_detail;
+```
+
+### 利用可能なマイグレーション
+
+- `20251024_add_scores_columns.sql`: `scores` テーブルに AI モデル情報、抽出数値、レイテンシ、評価詳細の各カラムを追加
 
 ## 補足
 
