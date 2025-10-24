@@ -80,6 +80,48 @@
 - `docs/task/06_Solveエンドポイント実装.md` 作業手順を全てチェック済みに更新
 - `docs/task/07_solve結合テスト.md` 作業手順を全てチェック済みに更新
 
+#### 5. タスク#8: CIワークフロー整備の確認と完了
+
+- `.github/workflows/ci.yaml` の既存実装を確認
+  - Frontend, Backend, Docker の3つのジョブが実装済み
+  - キャッシュ設定（npm, Go modules, Docker）完備
+  - go.modからGoバージョン自動検出
+  - golangci-lintによる静的解析
+  - テスト実行、ビルド、アーティファクトアップロード
+- `README.md` にCIステータスバッジを追加
+  - `[![CI](https://github.com/shiv-ko/CoT_game/actions/workflows/ci.yaml/badge.svg)](...)`
+- `docs/task/08_CIワークフロー整備.md` の作業手順を全てチェック済みに更新
+
+#### 6. テスト修正（リポジトリ層の外部キー制約対応）
+
+- `backend/internal/repository/scores_repo_test.go` を修正
+  - **外部キー制約違反の解決**:
+    - `ensureTestUser` ヘルパー関数を新規作成
+    - テスト実行前にusersテーブルにテストユーザーを挿入
+    - `ON CONFLICT (id) DO NOTHING` で既存ユーザーとの競合を回避
+  - **テストデータクリーンアップの改善**:
+    - `cleanupTestData` でscoresとusersの両方を削除するように修正
+    - テスト前に既存データをクリーンアップして干渉を防止
+  - **question_id参照の修正**:
+    - 存在しないquestion_id=2の使用を修正
+    - init.sqlで作成されるquestion_id=1を使用
+- `backend/internal/repository/scores_repo.go` を修正
+  - **JSONB null処理の改善**:
+    - `EvaluationDetail`がnilの場合の処理を修正
+    - `interface{}`型を使用してnilまたはJSON bytesを柔軟に扱う
+    - PostgreSQLのJSONB列にnullを正しく渡せるように修正
+- テスト実行結果: **全26テストがパス**
+  - handlers: 4/4 PASS
+  - internal/ai: 6/6 PASS
+  - internal/eval: 10/10 PASS
+  - internal/repository: 6/6 PASS（外部キー制約とJSON処理の問題を解決）
+
+#### 7. ブランチ・PR命名規則の更新
+
+- `docs/instruction/branch-pr-name.md` をさらに更新
+  - #13, #14を統合: `#13-14 | ランキング・履歴API実装`
+  - #15, #16を統合: `#15-16 | ランキング・履歴UIページ`
+
 ## 何ができたか
 
 ### 1. スコア保存リポジトリ層の完成
