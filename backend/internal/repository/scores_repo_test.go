@@ -5,6 +5,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -41,7 +42,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 // ensureTestUser は指定IDのユーザーが users テーブルに存在するよう強制し、外部キー制約でテストが失敗しないようにします。
 func ensureTestUser(t *testing.T, db *sql.DB, userID int) {
 	t.Helper()
-	username := "test_user_" + string(rune(userID))
+	username := fmt.Sprintf("test_user_%d", userID)
 	passwordHash := "test_hash"
 
 	// ユーザーが存在しない場合のみ作成
