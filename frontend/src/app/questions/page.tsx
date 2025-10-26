@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { fetchQuestions } from '../../../services/api';
 import { Question } from '../../../types/question';
@@ -47,14 +47,17 @@ const QuestionsPage: React.FC = () => {
   }, []);
 
   /**
-   * レベルでフィルタリング
+   * レベルでフィルタリング（レベル順にソート）
    */
   useEffect(() => {
+    let filtered: Question[];
     if (selectedLevel === 'all') {
-      setFilteredQuestions(questions);
+      filtered = questions;
     } else {
-      setFilteredQuestions(questions.filter((q) => q.level === selectedLevel));
+      filtered = questions.filter((q) => q.level === selectedLevel);
     }
+    // レベル順にソート（簡単な順）
+    setFilteredQuestions([...filtered].sort((a, b) => a.level - b.level));
   }, [selectedLevel, questions]);
 
   /**
@@ -75,6 +78,12 @@ const QuestionsPage: React.FC = () => {
   const handleRetry = () => {
     loadQuestions();
   };
+
+  // ユニークなレベルを取得（メモ化）
+  const uniqueLevels = useMemo(
+    () => Array.from(new Set(questions.map((q) => q.level))).sort((a, b) => a - b),
+    [questions],
+  );
 
   // ローディング中
   if (loading) {
@@ -108,9 +117,6 @@ const QuestionsPage: React.FC = () => {
       </main>
     );
   }
-
-  // ユニークなレベルを取得
-  const uniqueLevels = Array.from(new Set(questions.map((q) => q.level))).sort((a, b) => a - b);
 
   return (
     <main style={{ padding: '2rem' }}>
