@@ -4,7 +4,7 @@
 
 -- 新しい列を追加
 -- ALTERはテーブル構造を変更するための書き出しコマンド
-ALTER TABLE scores\
+ALTER TABLE scores
 -- AIベンダーの名前・デフォルトは 'gemini'
 ADD COLUMN model_vendor TEXT NOT NULL DEFAULT 'gemini',
 -- AIモデル名/バージョン
