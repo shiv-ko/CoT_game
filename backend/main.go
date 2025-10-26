@@ -10,6 +10,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,8 +19,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/shiv/CoT_game/backend/handlers"
 	"github.com/shiv/CoT_game/backend/internal/ai"
+	"github.com/shiv/CoT_game/backend/internal/repository"
 	"github.com/shiv/CoT_game/backend/routes"
 )
 
@@ -71,7 +74,8 @@ func main() {
 
 func run(ctx context.Context) error {
 	// Gemini クライアントを初期化し、APIキー未設定時は起動を停止します。
-	if _, err := ai.NewGeminiClientFromEnv(); err != nil {
+	geminiClient, err := ai.NewGeminiClientFromEnv()
+	if err != nil {
 		return fmt.Errorf("gemini クライアントの初期化に失敗しました: %w", err)
 	}
 
@@ -82,6 +86,25 @@ func run(ctx context.Context) error {
 	}
 	defer dbpool.Close()
 
+	// database/sql の接続も作成（repository層で使用）
+	dbURL := os.Getenv("DATABASE_URL")
+	sqlDB, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		return fmt.Errorf("sql.DB の作成に失敗しました: %w", err)
+	}
+	defer func() {
+		if closeErr := sqlDB.Close(); closeErr != nil {
+			log.Printf("failed to close database: %v", closeErr)
+		}
+	}()
+
+	if err := sqlDB.Ping(); err != nil {
+		return fmt.Errorf("sql.DB の疎通確認に失敗しました: %w", err)
+	}
+
+	// リポジトリ層の初期化
+	scoreRepo := repository.NewScoresRepository(sqlDB)
+
 	// デフォルトのミドルウェアを使用してGinルーターを初期化します。
 	router := gin.Default()
 
@@ -91,9 +114,11 @@ func run(ctx context.Context) error {
 
 	// データベースプールを使用してハンドラを初期化します。
 	questionHandler := handlers.NewQuestionHandler(dbpool)
+	solveHandler := handlers.NewSolveHandler(geminiClient, scoreRepo, sqlDB)
 
 	// questions API のルートを登録します。
 	routes.RegisterQuestionRoutes(apiV1, questionHandler)
+	routes.RegisterSolveRoutes(apiV1, solveHandler)
 
 	// シンプルなヘルスチェック用のエンドポイントです。
 	router.GET("/ping", func(c *gin.Context) {
