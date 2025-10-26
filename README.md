@@ -1,5 +1,7 @@
 # プロジェクト概要
 
+[![CI](https://github.com/shiv-ko/CoT_game/actions/workflows/ci.yaml/badge.svg)](https://github.com/shiv-ko/CoT_game/actions/workflows/ci.yaml)
+
 本リポジトリは「プロンプトバトルWebアプリ」のモノレポ構成です。フロントエンド（Next.js）／バックエンド（Go）／DB（PostgreSQL）／ドキュメントで構成されています。
 
 ## ディレクトリ構成（2025-09-07 現在）

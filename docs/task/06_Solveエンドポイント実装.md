@@ -21,15 +21,15 @@
 
 ## 作業手順
 
-- [ ] `handlers/solve_handler.go` 作成
-- [ ] Request DTO / Response DTO 定義
-- [ ] 入力検証 (question存在確認, prompt長)
-- [ ] AIクライアント呼出 + レイテンシ計測
-- [ ] 評価ロジック呼出 (score, 抽出値, 評価種別)
-- [ ] scores 保存 (リポジトリ層利用)
-- [ ] JSON 応答生成
-- [ ] ルート登録 `routes/solve_routes.go`
-- [ ] 結合テスト (Gemini)
+- [x] `handlers/solve_handler.go` 作成
+- [x] Request DTO / Response DTO 定義
+- [x] 入力検証 (question存在確認, prompt長)
+- [x] AIクライアント呼出 + レイテンシ計測
+- [x] 評価ロジック呼出 (score, 抽出値, 評価種別)
+- [x] scores 保存 (リポジトリ層利用)
+- [x] JSON 応答生成
+- [x] ルート登録 `routes/solve_routes.go`
+- [x] 結合テスト (Gemini)
 
 ## 依存関係 / リスク
 
