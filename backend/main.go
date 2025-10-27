@@ -14,7 +14,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
@@ -84,6 +86,17 @@ func run(ctx context.Context) error {
 
 	// デフォルトのミドルウェアを使用してGinルーターを初期化します。
 	router := gin.Default()
+
+	// CORSミドルウェアの設定
+	// フロントエンド (http://localhost:3000) からのリクエストを許可します。
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// バージョニングのためにメインのAPIグループを作成します (例: /api/v1)。
 	// これにより、APIの保守性が向上し、将来のバージョンへの対応が可能になります。
