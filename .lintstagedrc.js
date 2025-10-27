@@ -6,10 +6,9 @@ module.exports = {
   'docker-compose.yml': 'prettier --write',
 
   'frontend/**/*.{js,jsx,ts,tsx,css,scss}': (files) => {
-    const relToFrontend = files.map((f) => path.relative('frontend', f));
     return [
       `prettier --write ${files.join(' ')}`,
-      `eslint --fix --cwd frontend ${relToFrontend.join(' ')}`,
+      `cd frontend && eslint --fix ${files.map((f) => path.relative('frontend', f)).join(' ')}`,
     ];
   },
 

@@ -1,5 +1,6 @@
-import fetchApi from './api';
 import { User, LoginResponse } from '../types/auth';
+
+import fetchApi from './api';
 
 /**
  * 新しいユーザーを登録する
