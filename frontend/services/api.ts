@@ -1,7 +1,7 @@
 import { ErrorResponse } from '../types/auth';
 import { Question } from '../types/question';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
  * APIリクエストを送信する汎用関数

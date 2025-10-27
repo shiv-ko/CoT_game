@@ -1,5 +1,11 @@
 # Secrets
 .env
+
+# Build artifacts
+backend/tmp/
+frontend/.next/
+frontend/out/
+
 # OS / Editors
 .DS_Store
 Thumbs.db
