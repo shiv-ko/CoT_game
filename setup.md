@@ -641,7 +641,7 @@ go build -o main .
 - **[README.md](./README.md)**: プロジェクト全体の概要
 - **[docs/app.md](./docs/app.md)**: アプリの仕様と機能説明
 - **[command.md](./command.md)**: よく使う開発・運用コマンド集
-- **[docs/guideline_code.md](./docs/guideline_code.md)**: コーディング規約
+- **[docs/instruction/guideline_code.md](./docs/instruction/guideline_code.md)**: コーディング規約
 
 ---
 
