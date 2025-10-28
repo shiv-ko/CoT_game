@@ -122,7 +122,7 @@ cp db/.env.example db/.env
 docker-compose up
 ```
 
-4. **アクセス**
+4. **デフォルトアクセスリンク**
 
 - フロントエンド: http://localhost:3000
 - バックエンド API: http://localhost:8080
