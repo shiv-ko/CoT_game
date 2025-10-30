@@ -3,6 +3,7 @@ import React from 'react';
 
 import { Question } from '../../../../types/question';
 
+import styles from './QuestionsTable.module.css';
 import { renderStars } from './utils';
 
 interface QuestionsTableProps {
@@ -11,42 +12,30 @@ interface QuestionsTableProps {
 
 /**
  * 問題一覧テーブルコンポーネント
+ * セキュリティとゲーム性の観点から、問題文は表示しません。
+ * ユーザーは問題IDと難易度のみを見て、挑戦する問題を選びます。
  */
 const QuestionsTable: React.FC<QuestionsTableProps> = ({ questions }) => {
   if (questions.length === 0) {
-    return <p>選択した難易度の問題がありません</p>;
+    return <p className={styles.emptyMessage}>選択した難易度の問題がありません</p>;
   }
 
   return (
-    <div>
-      <p>全 {questions.length} 問</p>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-        <thead>
-          <tr style={{ borderBottom: '2px solid #ddd' }}>
-            <th style={{ padding: '0.75rem', textAlign: 'left' }}>ID</th>
-            <th style={{ padding: '0.75rem', textAlign: 'left' }}>難易度</th>
-            <th style={{ padding: '0.75rem', textAlign: 'left' }}>問題文</th>
-            <th style={{ padding: '0.75rem', textAlign: 'center' }}>操作</th>
+    <div className={styles.container}>
+      <p className={styles.count}>全 {questions.length} 問</p>
+      <table className={styles.table}>
+        <thead className={styles.tableHeader}>
+          <tr>
+            <th>難易度</th>
+            <th>操作</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={styles.tableBody}>
           {questions.map((question) => (
-            <tr key={question.id} style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '0.75rem' }}>{question.id}</td>
-              <td style={{ padding: '0.75rem' }}>{renderStars(question.level)}</td>
-              <td style={{ padding: '0.75rem' }}>{question.problem_statement}</td>
-              <td style={{ padding: '0.75rem', textAlign: 'center' }}>
-                <Link
-                  href={`/questions/${question.id}`}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#0070f3',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '4px',
-                    display: 'inline-block',
-                  }}
-                >
+            <tr key={question.id}>
+              <td className={styles.levelCell}>{renderStars(question.level)}</td>
+              <td className={styles.actionCell}>
+                <Link href={`/questions/${question.id}`} className={styles.solveButton}>
                   解く
                 </Link>
               </td>

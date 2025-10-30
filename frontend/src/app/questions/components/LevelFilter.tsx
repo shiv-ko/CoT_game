@@ -1,5 +1,6 @@
 import React from 'react';
 
+import styles from './LevelFilter.module.css';
 import { renderStars } from './utils';
 
 interface LevelFilterProps {
@@ -17,15 +18,15 @@ const LevelFilter: React.FC<LevelFilterProps> = ({
   onLevelChange,
 }) => {
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <label htmlFor="level-filter" style={{ marginRight: '0.5rem' }}>
+    <div className={styles.filterContainer}>
+      <label htmlFor="level-filter" className={styles.label}>
         難易度フィルタ:
       </label>
       <select
         id="level-filter"
         value={selectedLevel}
         onChange={(e) => onLevelChange(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-        style={{ padding: '0.5rem' }}
+        className={styles.select}
       >
         <option value="all">すべて</option>
         {uniqueLevels.map((level) => (
@@ -34,6 +35,11 @@ const LevelFilter: React.FC<LevelFilterProps> = ({
           </option>
         ))}
       </select>
+      <div className={styles.info}>
+        <span className={styles.badge}>
+          {selectedLevel === 'all' ? '全問題' : `レベル ${selectedLevel}`}
+        </span>
+      </div>
     </div>
   );
 };

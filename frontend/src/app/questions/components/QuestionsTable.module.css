@@ -1,0 +1,115 @@
+/**
+ * 問題一覧テーブルのスタイル
+ * シンプルで見やすいテーブルデザインを提供します
+ */
+
+.container {
+  margin-top: var(--spacing-lg);
+}
+
+.count {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-lg);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.tableHeader {
+  background-color: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.tableHeader th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tableHeader th:last-child {
+  text-align: center;
+}
+
+.tableBody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.15s ease-in-out;
+}
+
+.tableBody tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+.tableBody tr:last-child {
+  border-bottom: none;
+}
+
+.tableBody td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  color: var(--text-primary);
+}
+
+.idCell {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.levelCell {
+  font-size: var(--font-size-lg);
+}
+
+.actionCell {
+  text-align: center;
+}
+
+.solveButton {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  transition: all 0.2s ease-in-out;
+}
+
+.solveButton:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-secondary);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .table {
+    font-size: var(--font-size-sm);
+  }
+
+  .tableHeader th,
+  .tableBody td {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .solveButton {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+}
