@@ -3,12 +3,21 @@ package models
 
 import "time"
 
-// Question はデータベースの questions テーブルに対応する構造体です。
-// CorrectAnswer の `json:"-"` タグは、APIレスポンスに正解が含まれるのを防ぎます。
+// Question は内部処理用の完全な問題情報を表す構造体です。
+// データベースの questions テーブルに対応します。
 type Question struct {
 	ID               int       `json:"id"`
 	Level            int       `json:"level"`
 	ProblemStatement string    `json:"problem_statement"`
-	CorrectAnswer    string    `json:"-"`
+	CorrectAnswer    string    `json:"correct_answer"`
 	CreatedAt        time.Time `json:"created_at"`
+}
+
+// QuestionResponse はクライアントに返す問題情報を表す構造体です。
+// セキュリティとゲーム性の観点から、問題文と正解は含まれません。
+// ユーザーは問題文を見ずにプロンプトを工夫してAIに正解を導き出させます。
+type QuestionResponse struct {
+	ID        int       `json:"id"`
+	Level     int       `json:"level"`
+	CreatedAt time.Time `json:"created_at"`
 }
