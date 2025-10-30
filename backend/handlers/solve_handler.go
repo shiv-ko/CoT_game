@@ -5,6 +5,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -88,7 +89,7 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	// デフォルトモデルを設定
 	if req.Model == "" {
 		// モデル指定が無いケースでも使いやすいよう、サービス側でデフォルト値を決めています。
-		req.Model = "gemini-1.5-flash"
+		req.Model = "gemini-2.0-flash-lite"
 	}
 
 	ctx := c.Request.Context()
@@ -112,13 +113,36 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 		return
 	}
 
+	// 問題文の取得
+	// AIに問題文を含めたプロンプトを送信するために必要です。
+	problemStatement, err := h.getProblemStatement(ctx, req.QuestionID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error":   "question_not_found",
+				"message": "指定された問題が見つかりません",
+			})
+		} else {
+			log.Printf("問題文取得エラー: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error":   "database_error",
+				"message": "問題文の取得に失敗しました",
+			})
+		}
+		return
+	}
+
+	// システムプロンプトとユーザープロンプトを結合
+	// 問題文はユーザーには見せませんが、AIには送信する必要があります。
+	combinedPrompt := buildCombinedPrompt(problemStatement, req.Prompt)
+
 	// AI呼び出し開始時刻
 	// time.Since と組み合わせることでレイテンシを簡単に測定できます。
 	startTime := time.Now()
 
-	// AIクライアントでプロンプトを送信
+	// AIクライアントで結合されたプロンプトを送信
 	// AIClient は interface のため、実運用では外部 API を呼び、テストではモックを差し込めます。
-	aiResp, err := h.AIClient.Generate(ctx, req.Prompt)
+	aiResp, err := h.AIClient.Generate(ctx, combinedPrompt)
 	if err != nil {
 		log.Printf("AI呼び出しエラー: %v", err)
 		statusCode := http.StatusBadGateway
@@ -190,6 +214,16 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// getProblemStatement は question_id から問題文を取得します。
+// システムプロンプトの構築に使用されます。
+func (h *SolveHandler) getProblemStatement(ctx context.Context, questionID int) (string, error) {
+	query := "SELECT problem_statement FROM questions WHERE id = $1"
+	var problemStatement string
+	// PostgreSQLのバインド変数を使用してSQLインジェクションを防ぎます。
+	err := h.DB.QueryRowContext(ctx, query, questionID).Scan(&problemStatement)
+	return problemStatement, err
+}
+
 // getCorrectAnswer はquestion_idから正解を取得します。
 func (h *SolveHandler) getCorrectAnswer(ctx context.Context, questionID int) (string, error) {
 	query := "SELECT correct_answer FROM questions WHERE id = $1"
@@ -197,4 +231,19 @@ func (h *SolveHandler) getCorrectAnswer(ctx context.Context, questionID int) (st
 	// 実環境では questionID をバインドして SQL インジェクションを防ぎます。QueryRowContext → Scan の流れは DB 操作の基本形です。
 	err := h.DB.QueryRowContext(ctx, query, questionID).Scan(&correctAnswer)
 	return correctAnswer, err
+}
+
+// buildCombinedPrompt はシステムプロンプトとユーザープロンプトを結合します。
+// 問題文はユーザーには見せませんが、AIが問題を解くために必要です。
+// 返されるプロンプトには、問題文、ユーザーの指示、そして回答形式の指示が含まれます。
+func buildCombinedPrompt(problemStatement, userPrompt string) string {
+	return fmt.Sprintf(`以下の問題を解いてください。
+
+【問題】
+%s
+
+【指示】
+%s
+
+必ず最終的な答えだけを出力してください。`, problemStatement, userPrompt)
 }
