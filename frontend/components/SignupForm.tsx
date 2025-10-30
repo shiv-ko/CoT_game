@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 
 import { signup } from '../services/authService';
 
+import styles from './SignupForm.module.css';
+
 /**
  * サインアップフォームコンポーネント
  */
@@ -27,7 +29,7 @@ const SignupForm: React.FC = () => {
       const response = await signup({ username, email, password });
       setSuccess(`Welcome, ${response.user.username}! Your account has been created.`);
       // TODO: トークンを保存し、ログイン状態に遷移する処理
-      console.log('Token:', response.token);
+      console.info('Token:', response.token);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -36,41 +38,58 @@ const SignupForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Sign Up</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      <div>
-        <label htmlFor="username">Username</label>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.formTitle}>アカウント作成</h2>
+      {error && <div className={`${styles.message} ${styles.errorMessage}`}>{error}</div>}
+      {success && <div className={`${styles.message} ${styles.successMessage}`}>{success}</div>}
+      <div className={styles.formGroup}>
+        <label htmlFor="username" className={styles.label}>
+          ユーザー名
+        </label>
         <input
           id="username"
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          className={styles.input}
+          placeholder="your-username"
         />
       </div>
-      <div>
-        <label htmlFor="email">Email</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="email" className={styles.label}>
+          メールアドレス
+        </label>
         <input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className={styles.input}
+          placeholder="your@email.com"
         />
       </div>
-      <div>
-        <label htmlFor="password">Password</label>
+      <div className={styles.formGroup}>
+        <label htmlFor="password" className={styles.label}>
+          パスワード
+        </label>
         <input
           id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className={styles.input}
+          placeholder="••••••••"
         />
       </div>
-      <button type="submit">Sign Up</button>
+      <button type="submit" className={styles.submitButton}>
+        サインアップ
+      </button>
+      <div className={styles.loginLink}>
+        既にアカウントをお持ちですか? <a href="/login">ログイン</a>
+      </div>
     </form>
   );
 };
