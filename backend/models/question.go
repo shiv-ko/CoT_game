@@ -10,6 +10,7 @@ type Question struct {
 	Level            int       `json:"level"`
 	ProblemStatement string    `json:"problem_statement"`
 	CorrectAnswer    string    `json:"correct_answer"`
+	Tags             []string  `json:"tags"`
 	CreatedAt        time.Time `json:"created_at"`
 }
 
@@ -19,5 +20,6 @@ type Question struct {
 type QuestionResponse struct {
 	ID        int       `json:"id"`
 	Level     int       `json:"level"`
+	Tags      []string  `json:"tags"`
 	CreatedAt time.Time `json:"created_at"`
 }
