@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchQuestions, submitSolve } from '../../../../services/api';
 import { Question } from '../../../../types/question';
 import { SolveRequest, SolveResponse } from '../../../../types/solve';
+import { QuestionTagList, PromptTips } from '../components/QuestionTag';
 
 import SolveResult from './components/SolveResult';
 import styles from './QuestionDetail.module.css';
@@ -168,12 +169,14 @@ export default function QuestionDetailPage() {
         <h1 className={styles.title}>問題 #{question.id}</h1>
         <div className={styles.metadata}>
           <span>難易度: {question.level}</span>
+          <QuestionTagList tags={question.tags} />
         </div>
         <p className={styles.description}>
           この問題に対して、AIに指示を出すプロンプトを入力してください。
           <br />
           あなたのプロンプトの質によって、AIの回答の正確さが変わります。
         </p>
+        <PromptTips tags={question.tags} />
       </div>
 
       {/* 結果が表示されていない場合のみフォームを表示 */}

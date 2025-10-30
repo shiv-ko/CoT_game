@@ -37,6 +37,9 @@
 }
 
 .metadata {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
@@ -45,12 +48,6 @@
   margin-top: var(--spacing-lg);
   color: var(--text-secondary);
   line-height: 1.6;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: var(--spacing-2xl);
 }
 
 .header {
