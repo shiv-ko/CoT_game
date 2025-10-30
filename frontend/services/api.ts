@@ -1,5 +1,6 @@
 import { ErrorResponse } from '../types/auth';
 import { Question } from '../types/question';
+import { SolveRequest, SolveResponse } from '../types/solve';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -44,6 +45,19 @@ async function fetchApi<T>(path: string, options: RequestInit = {}): Promise<T> 
  */
 export async function fetchQuestions(): Promise<Question[]> {
   return fetchApi<Question[]>('/api/v1/questions');
+}
+
+/**
+ * 問題を解くためのプロンプトをAIに送信し、評価結果を取得する
+ * @param request - Solve APIリクエスト（問題ID、プロンプト、モデル）
+ * @returns Solve APIレスポンス（AI応答、スコア、評価詳細）
+ * @throws APIエラーまたはネットワークエラー
+ */
+export async function submitSolve(request: SolveRequest): Promise<SolveResponse> {
+  return fetchApi<SolveResponse>('/api/v1/solve', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
 }
 
 export default fetchApi;
