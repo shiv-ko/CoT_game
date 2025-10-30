@@ -11,7 +11,7 @@ func floatPtr(v float64) *float64 {
 	return &v
 }
 
-// TestEvaluate は評価ロジックの主要ケースを網羅し、計算された diff と score が整合するかを検証する。
+// TestEvaluate は評価ロジックの主要ケースを網羅し、計算された相対誤差と score が整合するかを検証する。
 // テーブルテスト形式で入力と期待値を並べ、初心者でも "ケースごとの条件 → 期待結果" が追いやすい構成にしている。
 func TestEvaluate(t *testing.T) {
 	testcases := []struct {
@@ -21,7 +21,8 @@ func TestEvaluate(t *testing.T) {
 		expectScore      int
 		expectMode       string
 		expectExtracted  *float64
-		expectDiff       *float64
+		expectAbsDiff    *float64 // 絶対誤差
+		expectRelDiff    *float64 // 相対誤差
 		expectNormalized bool
 	}{
 		{
@@ -31,7 +32,8 @@ func TestEvaluate(t *testing.T) {
 			expectScore:      100,
 			expectMode:       "exact_match",
 			expectExtracted:  floatPtr(42.0),
-			expectDiff:       floatPtr(0.0),
+			expectAbsDiff:    floatPtr(0.0),
+			expectRelDiff:    floatPtr(0.0),
 			expectNormalized: true,
 		},
 		{
@@ -41,27 +43,30 @@ func TestEvaluate(t *testing.T) {
 			expectScore:      100,
 			expectMode:       "numeric_exact",
 			expectExtracted:  floatPtr(10.0),
-			expectDiff:       floatPtr(0.0),
+			expectAbsDiff:    floatPtr(0.0),
+			expectRelDiff:    floatPtr(0.0),
 			expectNormalized: true,
 		},
 		{
-			name:             "ToleranceWithin",
+			name:             "SmallRelativeError_0.09percent",
 			answer:           "The result is 9.991",
 			correct:          "10",
-			expectScore:      computeScore(0.009),
+			expectScore:      computeScore(calculateRelativeError(0.009, 10)),
 			expectMode:       "numeric_score",
 			expectExtracted:  floatPtr(9.991),
-			expectDiff:       floatPtr(0.009),
+			expectAbsDiff:    floatPtr(0.009),
+			expectRelDiff:    floatPtr(0.0009), // 0.009/10 = 0.09%
 			expectNormalized: true,
 		},
 		{
-			name:             "ToleranceOutside",
+			name:             "SmallRelativeError_0.11percent",
 			answer:           "9.989",
 			correct:          "10",
-			expectScore:      computeScore(0.011),
+			expectScore:      computeScore(calculateRelativeError(0.011, 10)),
 			expectMode:       "numeric_score",
 			expectExtracted:  floatPtr(9.989),
-			expectDiff:       floatPtr(0.011),
+			expectAbsDiff:    floatPtr(0.011),
+			expectRelDiff:    floatPtr(0.0011), // 0.011/10 = 0.11%
 			expectNormalized: true,
 		},
 		{
@@ -75,10 +80,11 @@ func TestEvaluate(t *testing.T) {
 			name:             "MultipleNumbersUsesFirst",
 			answer:           "First 11 then 10",
 			correct:          "10",
-			expectScore:      computeScore(1.0),
+			expectScore:      computeScore(calculateRelativeError(1.0, 10)),
 			expectMode:       "numeric_score",
 			expectExtracted:  floatPtr(11.0),
-			expectDiff:       floatPtr(1.0),
+			expectAbsDiff:    floatPtr(1.0),
+			expectRelDiff:    floatPtr(0.1), // 1.0/10 = 10%
 			expectNormalized: true,
 		},
 		{
@@ -88,17 +94,19 @@ func TestEvaluate(t *testing.T) {
 			expectScore:      100,
 			expectMode:       "exact_match",
 			expectExtracted:  floatPtr(-5.0),
-			expectDiff:       floatPtr(0.0),
+			expectAbsDiff:    floatPtr(0.0),
+			expectRelDiff:    floatPtr(0.0),
 			expectNormalized: true,
 		},
 		{
 			name:             "DecimalPrecision",
 			answer:           "3.1415",
 			correct:          "3.1416",
-			expectScore:      computeScore(0.0001),
+			expectScore:      computeScore(calculateRelativeError(0.0001, 3.1416)),
 			expectMode:       "numeric_score",
 			expectExtracted:  floatPtr(3.1415),
-			expectDiff:       floatPtr(0.0001),
+			expectAbsDiff:    floatPtr(0.0001),
+			expectRelDiff:    floatPtr(0.0001 / 3.1416), // 約0.003%
 			expectNormalized: true,
 		},
 		{
@@ -116,6 +124,28 @@ func TestEvaluate(t *testing.T) {
 			expectMode:       "extracted_only",
 			expectExtracted:  floatPtr(7.0),
 			expectNormalized: false,
+		},
+		{
+			name:             "LargeNumber_SmallRelativeError",
+			answer:           "1000.1",
+			correct:          "1000",
+			expectScore:      computeScore(calculateRelativeError(0.1, 1000)),
+			expectMode:       "numeric_score",
+			expectExtracted:  floatPtr(1000.1),
+			expectAbsDiff:    floatPtr(0.1),
+			expectRelDiff:    floatPtr(0.0001), // 0.1/1000 = 0.01%
+			expectNormalized: true,
+		},
+		{
+			name:             "5PercentError_ShouldBe50Points",
+			answer:           "10.5",
+			correct:          "10",
+			expectScore:      50, // 相対誤差5%でスコア50点
+			expectMode:       "numeric_score",
+			expectExtracted:  floatPtr(10.5),
+			expectAbsDiff:    floatPtr(0.5),
+			expectRelDiff:    floatPtr(0.05), // 0.5/10 = 5%
+			expectNormalized: true,
 		},
 	}
 
@@ -156,24 +186,39 @@ func TestEvaluate(t *testing.T) {
 				}
 			}
 
-			// detail マップに入った numeric_diff は、評価ロジックの内部状態を確認する指標。
+			// detail マップに入った absolute_diff と relative_error は、評価ロジックの内部状態を確認する指標。
 			// ケースによっては存在しない（no_numeric など）ため、期待に応じて有無と数値をチェックする。
-			diffValue, diffOK := detail["numeric_diff"].(float64)
-			if tc.expectDiff == nil {
-				if diffOK {
-					t.Fatalf("unexpected numeric_diff detail: %v", diffValue)
+			absDiffValue, absDiffOK := detail["absolute_diff"].(float64)
+			if tc.expectAbsDiff == nil {
+				if absDiffOK {
+					t.Fatalf("unexpected absolute_diff detail: %v", absDiffValue)
 				}
 			} else {
-				if !diffOK {
-					t.Fatal("expected numeric_diff detail, but missing")
+				if !absDiffOK {
+					t.Fatal("expected absolute_diff detail, but missing")
 				}
-				if math.Abs(diffValue-*tc.expectDiff) > 1e-9 {
-					t.Fatalf("numeric_diff mismatch: got %f, want %f", diffValue, *tc.expectDiff)
+				if math.Abs(absDiffValue-*tc.expectAbsDiff) > 1e-9 {
+					t.Fatalf("absolute_diff mismatch: got %f, want %f", absDiffValue, *tc.expectAbsDiff)
 				}
-				// computeScore を再計算し、detail 上の diff と返却された score の両方が同じ式に従っているか確認する。
-				expectedScore := computeScore(diffValue)
+			}
+
+			// 相対誤差の検証
+			relDiffValue, relDiffOK := detail["relative_error"].(float64)
+			if tc.expectRelDiff == nil {
+				if relDiffOK {
+					t.Fatalf("unexpected relative_error detail: %v", relDiffValue)
+				}
+			} else {
+				if !relDiffOK {
+					t.Fatal("expected relative_error detail, but missing")
+				}
+				if math.Abs(relDiffValue-*tc.expectRelDiff) > 1e-9 {
+					t.Fatalf("relative_error mismatch: got %f, want %f", relDiffValue, *tc.expectRelDiff)
+				}
+				// computeScore を再計算し、detail 上の相対誤差と返却された score の両方が同じ式に従っているか確認する。
+				expectedScore := computeScore(relDiffValue)
 				if score != expectedScore {
-					t.Fatalf("score should align with computeScore(diff): diff=%f got=%d want=%d", diffValue, score, expectedScore)
+					t.Fatalf("score should align with computeScore(relativeError): relError=%f got=%d want=%d", relDiffValue, score, expectedScore)
 				}
 			}
 
