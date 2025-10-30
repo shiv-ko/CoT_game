@@ -17,6 +17,19 @@ docker-compose up --build
 docker-compose down
 ```
 
+### DB初期化（ボリューム削除して再起動）
+
+```bash
+# ボリュームを含めて完全停止・削除
+docker compose down -v
+
+# 再起動（削除後起動することでinit.sqlが実行される）
+docker compose up
+```
+
+- `-v` オプションでボリュームも削除されるため、`init.sql` が再実行される
+- データベースの内容が完全にリセットされる（開発時の初期化に便利）
+
 ### DBマイグレーション（手動）
 
 ```bash

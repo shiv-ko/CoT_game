@@ -27,6 +27,7 @@ func NewQuestionHandler(db *pgxpool.Pool) *QuestionHandler {
 // GetQuestions はデータベースから全ての問題を取得します。
 // データベースのクエリやデータスキャン中に発生しうるエラーをハンドリングし、
 // 適切なHTTPステータスコードとエラーメッセージを返します。
+// セキュリティ上、問題文と正解はクライアントに送信されません。
 func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	// 全ての問題を選択するクエリ。一貫性を保つためにlevelで並び替えます。
 	query := "SELECT id, level, problem_statement, correct_answer, created_at FROM questions ORDER BY level"
@@ -41,7 +42,7 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	// 質問データを保持するためのスライスを作成します。
+	// 質問データを保持するためのスライスを作成します（内部用の完全なデータ）。
 	var questions []models.Question
 	for rows.Next() {
 		var q models.Question
@@ -63,10 +64,22 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 
 	// データベースに質問が見つからない場合、フロントエンドの互換性のために
 	// `null` の代わりに空のリスト `[]` を返します。
-	if questions == nil {
-		questions = make([]models.Question, 0)
+	if len(questions) == 0 {
+		c.JSON(http.StatusOK, []models.QuestionResponse{})
+		return
 	}
 
-	// 200 OKステータスと共に質問のリストを返します。
-	c.JSON(http.StatusOK, questions)
+	// 内部データをクライアント用のレスポンスに変換します。
+	// 問題文と正解を除外し、IDとレベルと作成日時のみを返します。
+	responses := make([]models.QuestionResponse, len(questions))
+	for i, q := range questions {
+		responses[i] = models.QuestionResponse{
+			ID:        q.ID,
+			Level:     q.Level,
+			CreatedAt: q.CreatedAt,
+		}
+	}
+
+	// 200 OKステータスと共に質問のリスト（機密情報を除外）を返します。
+	c.JSON(http.StatusOK, responses)
 }

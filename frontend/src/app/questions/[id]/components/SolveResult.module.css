@@ -1,0 +1,150 @@
+/**
+ * Solve結果表示コンポーネントのスタイル
+ * カード型レイアウトでスコアと詳細情報を見やすく表示します
+ */
+
+.container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  margin-top: var(--spacing-2xl);
+  background-color: var(--bg-secondary);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scoreSection {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.scoreLabel {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.scoreValue {
+  font-size: 3rem;
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+}
+
+.scoreUnit {
+  font-size: var(--font-size-xl);
+  margin-left: var(--spacing-sm);
+}
+
+.scoreMessage {
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  margin-top: var(--spacing-sm);
+}
+
+.section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.aiOutput {
+  background-color: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  font-size: var(--font-size-sm);
+}
+
+.detailsGrid {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.detailItem {
+  margin-bottom: var(--spacing-xs);
+}
+
+.detailItem strong {
+  color: var(--text-primary);
+  margin-right: var(--spacing-xs);
+}
+
+.retrySection {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--border-color);
+}
+
+.retryButton {
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-2xl);
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.retryButton:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* スコア色分け */
+.scoreExcellent {
+  color: var(--success-color);
+}
+
+.scoreGood {
+  color: var(--info-color);
+}
+
+.scoreFair {
+  color: var(--warning-color);
+}
+
+.scorePoor {
+  color: var(--danger-color);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-lg);
+  }
+
+  .scoreValue {
+    font-size: 2.5rem;
+  }
+
+  .aiOutput {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .retryButton {
+    width: 100%;
+  }
+}

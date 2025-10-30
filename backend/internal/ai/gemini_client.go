@@ -18,9 +18,9 @@ const (
 	// defaultBaseURL は公式 REST エンドポイント。環境変数で差し替え可能。
 	defaultBaseURL = "https://generativelanguage.googleapis.com/v1beta"
 	// defaultModel は app 全体でデフォルト利用するモデル名。
-	defaultModel = "gemini-1.5-pro"
+	defaultModel = "gemini-2.0-flash-lite"
 	// defaultTimeout は API 呼び出し 1 件あたりの目安タイムアウト。
-	defaultTimeout = 15 * time.Second
+	defaultTimeout = 20 * time.Second
 )
 
 // GeminiClient は Gemini REST API を利用してテキスト生成を行うクライアントです。

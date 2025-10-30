@@ -10,6 +10,7 @@ import ErrorState from './components/ErrorState';
 import LevelFilter from './components/LevelFilter';
 import LoadingState from './components/LoadingState';
 import QuestionsTable from './components/QuestionsTable';
+import styles from './QuestionsPage.module.css';
 
 /**
  * 問題一覧ページコンポーネント
@@ -52,7 +53,7 @@ const QuestionsPage: React.FC = () => {
   }, []);
 
   /**
-   * レベルでフィルタリング（レベル順にソート）
+   * レベルでフィルタリング(レベル順にソート)
    */
   useEffect(() => {
     let filtered: Question[];
@@ -61,7 +62,7 @@ const QuestionsPage: React.FC = () => {
     } else {
       filtered = questions.filter((q) => q.level === selectedLevel);
     }
-    // レベル順にソート（簡単な順）
+    // レベル順にソート(簡単な順)
     setFilteredQuestions([...filtered].sort((a, b) => a.level - b.level));
   }, [selectedLevel, questions]);
 
@@ -72,7 +73,7 @@ const QuestionsPage: React.FC = () => {
     loadQuestions();
   };
 
-  // ユニークなレベルを取得（メモ化）
+  // ユニークなレベルを取得(メモ化)
   const uniqueLevels = useMemo(
     () => Array.from(new Set(questions.map((q) => q.level))).sort((a, b) => a - b),
     [questions],
@@ -94,16 +95,37 @@ const QuestionsPage: React.FC = () => {
   }
 
   return (
-    <main style={{ padding: '2rem' }}>
-      <h1>問題一覧</h1>
+    <main className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>問題一覧</h1>
+      </div>
 
-      <LevelFilter
-        selectedLevel={selectedLevel}
-        uniqueLevels={uniqueLevels}
-        onLevelChange={setSelectedLevel}
-      />
+      <div className={styles.statsBar}>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{questions.length}</span>
+          <span className={styles.statLabel}>総問題数</span>
+        </div>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{uniqueLevels.length}</span>
+          <span className={styles.statLabel}>難易度レベル</span>
+        </div>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{filteredQuestions.length}</span>
+          <span className={styles.statLabel}>表示中</span>
+        </div>
+      </div>
 
-      <QuestionsTable questions={filteredQuestions} />
+      <div className={styles.filterSection}>
+        <LevelFilter
+          selectedLevel={selectedLevel}
+          uniqueLevels={uniqueLevels}
+          onLevelChange={setSelectedLevel}
+        />
+      </div>
+
+      <div className={styles.content}>
+        <QuestionsTable questions={filteredQuestions} />
+      </div>
     </main>
   );
 };

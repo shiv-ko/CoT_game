@@ -1,0 +1,234 @@
+/**
+ * 問題詳細ページのスタイル
+ * フォーム、ボタン、ローディング、エラーの各状態を統一デザインで管理します
+ */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl);
+}
+
+.header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.backButton {
+  background-color: #6b7280;
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.backButton:hover {
+  background-color: #4b5563;
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.metadata {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.description {
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl);
+}
+
+.header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.backButton {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  transition: all 0.2s ease-in-out;
+}
+
+.backButton:hover {
+  background-color: #4b5563;
+  transform: translateX(-2px);
+}
+
+.title {
+  font-size: var(--font-size-3xl);
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+}
+
+.metadata {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.description {
+  margin-top: var(--spacing-lg);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.form {
+  margin-top: var(--spacing-xl);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-xl);
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 200px;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.textarea.error {
+  border-color: var(--danger-color);
+}
+
+.textarea:disabled {
+  background-color: var(--bg-secondary);
+  cursor: not-allowed;
+}
+
+.textareaError {
+  border-color: var(--danger-color);
+}
+
+.errorMessage {
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.charCount {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.errorMessage {
+  color: var(--danger-color);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.charCount {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+.submitButton {
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.submitButtonDisabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.submitButtonDisabled:hover {
+  background-color: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+.submitButton:disabled {
+  background-color: var(--secondary-color);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ローディング・エラー状態 */
+.loadingState,
+.errorState {
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.loadingState {
+  color: var(--text-secondary);
+}
+
+.errorState {
+  color: var(--danger-color);
+}
+
+.errorStateButton {
+  margin-top: var(--spacing-lg);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--spacing-lg);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .textarea {
+    min-height: 150px;
+    font-size: var(--font-size-sm);
+  }
+}
