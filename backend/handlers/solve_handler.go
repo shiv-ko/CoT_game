@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -136,6 +137,14 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	// 問題文はユーザーには見せませんが、AIには送信する必要があります。
 	combinedPrompt := buildCombinedPrompt(problemStatement, req.Prompt)
 
+	// デバッグ: 送信されるプロンプトを確認
+	log.Printf("=== プロンプト確認 ===")
+	log.Printf("問題ID: %d", req.QuestionID)
+	log.Printf("ユーザープロンプト: %s", req.Prompt)
+	log.Printf("問題文: %s", problemStatement)
+	log.Printf("結合後のプロンプト:\n%s", combinedPrompt)
+	log.Printf("===================")
+
 	// AI呼び出し開始時刻
 	// time.Since と組み合わせることでレイテンシを簡単に測定できます。
 	startTime := time.Now()
@@ -162,9 +171,16 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	// レイテンシ計算
 	elapsedMs := time.Since(startTime).Milliseconds()
 
+	// AIの完全な回答（DBに保存用）
+	fullAIResponse := aiResp.RawText
+
+	// クライアントに返す回答（「最終回答: 」以降のみ）
+	// 問題文が推測されないよう、説明部分を除外します
+	clientResponse := extractFinalAnswer(aiResp.RawText)
+
 	// 評価ロジック実行
 	// eval パッケージに責務を分離することで、ハンドラは「AI の結果をどう扱うか」に集中できます。
-	score, answerNumber, mode, detail := eval.Evaluate(aiResp.RawText, correctAnswer)
+	score, answerNumber, mode, detail := eval.Evaluate(fullAIResponse, correctAnswer)
 
 	// 評価メタデータを構築
 	// detail 全体は JSONB に保存しますが、レスポンスに最低限の情報を添えておくと UI 側で扱いやすくなります。
@@ -174,11 +190,12 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	}
 
 	// スコアレコードをDBに保存
+	// 完全な回答をDBに保存（デバッグ・分析用）
 	scoreRecord := &repository.Score{
 		UserID:           nil, // ゲストユーザー（認証未実装のため）
 		QuestionID:       req.QuestionID,
 		Prompt:           req.Prompt,
-		AIResponse:       aiResp.RawText,
+		AIResponse:       fullAIResponse,
 		Score:            score,
 		ModelVendor:      "gemini",
 		ModelName:        &req.Model,
@@ -197,13 +214,13 @@ func (h *SolveHandler) PostSolve(c *gin.Context) {
 	}
 
 	// レスポンス生成
-	// フロントエンドがそのまま表示できるように、構造体に詰め替えて JSON で返却します。
+	// フロントエンドには「最終回答: 」以降のみを返して、問題文の推測を防ぎます
 	resp := SolveResponse{
 		QuestionID:   req.QuestionID,
 		Prompt:       req.Prompt,
 		ModelVendor:  "gemini",
 		ModelName:    req.Model,
-		AIOutput:     aiResp.RawText,
+		AIOutput:     clientResponse, // 最終回答のみ
 		AnswerNumber: answerNumber,
 		Score:        score,
 		Evaluation:   evaluationMeta,
@@ -233,17 +250,37 @@ func (h *SolveHandler) getCorrectAnswer(ctx context.Context, questionID int) (st
 	return correctAnswer, err
 }
 
+// extractFinalAnswer はAIの完全な回答から「最終回答: 」以降の部分のみを抽出します。
+// 問題文が推測されないよう、説明部分は除外してクライアントに返します。
+func extractFinalAnswer(fullResponse string) string {
+	// 「最終回答: 」または「最終回答:」を探す
+	markers := []string{"最終回答: ", "最終回答:", "最終回答："}
+
+	for _, marker := range markers {
+		if idx := strings.Index(fullResponse, marker); idx != -1 {
+			// マーカー以降の部分を取得
+			afterMarker := fullResponse[idx+len(marker):]
+			// 前後の空白を削除して返す
+			return strings.TrimSpace(afterMarker)
+		}
+	}
+
+	// マーカーが見つからない場合は全文を返す（フォールバック）
+	return fullResponse
+}
+
 // buildCombinedPrompt はシステムプロンプトとユーザープロンプトを結合します。
 // 問題文はユーザーには見せませんが、AIが問題を解くために必要です。
-// 返されるプロンプトには、問題文、ユーザーの指示、そして回答形式の指示が含まれます。
+// 返されるプロンプトには、問題文、ユーザーの指示が含まれます。
+// ユーザーのプロンプトを最大限尊重しつつ、最終回答を明確にするよう促します。
 func buildCombinedPrompt(problemStatement, userPrompt string) string {
-	return fmt.Sprintf(`以下の問題を解いてください。
+	return fmt.Sprintf(`以下の問題について、ユーザーの指示に従って回答してください。
 
 【問題】
 %s
 
-【指示】
+【ユーザーの指示】
 %s
 
-必ず最終的な答えだけを出力してください。`, problemStatement, userPrompt)
+【重要】回答の最後に、必ず「最終回答: 」に続けて答えを明記してください。`, problemStatement, userPrompt)
 }
