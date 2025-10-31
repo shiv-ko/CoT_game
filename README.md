@@ -54,10 +54,18 @@
 
 ### 3. デモ / スクリーンショット（Optional）
 
-// prettier-ignore
-| トップページ | 問題解答画面 | 正解画面 |
-| ------------------------------------- | ------------------------------------- | ----------------------------------- |
-| ![トップページ](docs/images/home.png) | ![問題解答画面](docs/images/play.png) | ![正解画面](docs/images/result.png) |
+<!-- prettier-ignore -->
+**トップページ**
+
+<img src="docs/images/home.png" alt="トップページ" width="600">
+
+**問題解答画面**
+
+<img src="docs/images/play.png" alt="問題解答画面" width="600">
+
+**正解画面**
+
+<img src="docs/images/result.png" alt="正解画面" width="600">
 
 _上記はローカル環境での実行画面です。_
 
