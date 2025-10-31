@@ -28,6 +28,10 @@ const (
 
 	// 整数スケールでの基準誤差数（この誤差で50点になる）
 	integerBaseError = 2.0
+
+	// 極小値（1未満）の場合の基準誤差数
+	// 正解が0.5など1未満の小数の場合、より厳しく評価する
+	smallValueBaseError = 0.5
 )
 
 // numberPattern は回答文から数値らしい文字列を抜き出すためのパターン。
@@ -210,7 +214,7 @@ func computeIntegerScaleScore(absoluteDiff float64, correctVal float64) int {
 	// 正解が極小（1未満）の場合は、より厳しい評価
 	base := integerBaseError
 	if correctVal < 1.0 {
-		base = 0.5 // 0.5の誤差で50点
+		base = smallValueBaseError
 	}
 
 	// ロジスティック関数: score = 100 / (1 + (diff/base)^p)

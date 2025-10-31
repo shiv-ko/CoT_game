@@ -62,12 +62,11 @@ export function PromptTips({ tags }: PromptTipsProps) {
     return null;
   }
 
-  const tips = tags
+  const tagObjects = tags
     .map((tagId) => getTagById(tagId))
-    .filter((tag): tag is Tag => tag !== undefined)
-    .map((tag) => tag.prompt_tips);
+    .filter((tag): tag is Tag => tag !== undefined);
 
-  if (tips.length === 0) {
+  if (tagObjects.length === 0) {
     return null;
   }
 
@@ -84,9 +83,9 @@ export function PromptTips({ tags }: PromptTipsProps) {
       </button>
       {isOpen && (
         <ul className={styles.tipsList}>
-          {tips.map((tip, index) => (
-            <li key={index} className={styles.tipItem}>
-              {tip}
+          {tagObjects.map((tag) => (
+            <li key={tag.id} className={styles.tipItem}>
+              {tag.prompt_tips}
             </li>
           ))}
         </ul>
