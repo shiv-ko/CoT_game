@@ -20,7 +20,8 @@ const (
 	// defaultModel は app 全体でデフォルト利用するモデル名。
 	defaultModel = "gemini-2.0-flash-lite"
 	// defaultTimeout は API 呼び出し 1 件あたりの目安タイムアウト。
-	defaultTimeout = 20 * time.Second
+	// Gemini APIのレスポンスが15秒程度かかることがあるため、余裕を持って30秒に設定。
+	defaultTimeout = 30 * time.Second
 )
 
 // GeminiClient は Gemini REST API を利用してテキスト生成を行うクライアントです。

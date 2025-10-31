@@ -63,7 +63,7 @@ func cleanupTestData(t *testing.T, db *sql.DB, userID int) {
 	_, _ = db.Exec("DELETE FROM users WHERE id = $1", userID)
 }
 
-// TestScoresRepo_Create は Create メソッドがスコアを INSERT し、ID/SubmittedAt をセットできるかを検証します。
+// TestScoresRepo_Create は Create メソッドがスコアを INSERT し、ID/CreatedAt をセットできるかを検証します。
 // Create関数をテストしているから、単体テストに見えるが、DBまでテストしているので結合テストになる。
 func TestScoresRepo_Create(t *testing.T) {
 	db := setupTestDB(t)
@@ -137,8 +137,8 @@ func TestScoresRepo_Create(t *testing.T) {
 				if tt.record.ID == 0 {
 					t.Error("Create() did not set ID")
 				}
-				if tt.record.SubmittedAt.IsZero() {
-					t.Error("Create() did not set SubmittedAt")
+				if tt.record.CreatedAt.IsZero() {
+					t.Error("Create() did not set CreatedAt")
 				}
 			}
 		})
@@ -265,7 +265,7 @@ func TestScoresRepo_FindUserScores(t *testing.T) {
 	ensureTestUser(t, db, testUserID) // クリーンアップ後に再作成
 
 	// テストデータを2件挿入
-	// submitted_at の降順を確認するため、少なくとも 2 レコード必要です。
+	// created_at の降順を確認するため、少なくとも 2 レコード必要です。
 	err1 := repo.Create(ctx, &Score{
 		UserID:      &testUserID,
 		QuestionID:  1, // 既存の問題IDを使用
@@ -279,7 +279,7 @@ func TestScoresRepo_FindUserScores(t *testing.T) {
 		t.Fatalf("Failed to create first score: %v", err1)
 	}
 
-	time.Sleep(10 * time.Millisecond) // submitted_at の順序を保証
+	time.Sleep(10 * time.Millisecond) // created_at の順序を保証
 
 	err2 := repo.Create(ctx, &Score{
 		UserID:      &testUserID,
@@ -332,8 +332,8 @@ func TestScoresRepo_FindUserScores(t *testing.T) {
 
 				// 降順でソートされていることを確認
 				for i := 1; i < len(scores); i++ {
-					if scores[i-1].SubmittedAt.Before(scores[i].SubmittedAt) {
-						t.Error("FindUserScores() not sorted by submitted_at DESC")
+					if scores[i-1].CreatedAt.Before(scores[i].CreatedAt) {
+						t.Error("FindUserScores() not sorted by created_at DESC")
 					}
 				}
 			}

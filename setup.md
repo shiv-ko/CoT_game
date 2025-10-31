@@ -24,11 +24,14 @@
 ### 必須ツール
 
 #### 1. **Git**（バージョン管理ツール）
+
 - **役割**: ソースコードのバージョン管理
 - **インストール確認**:
+
   ```bash
   git --version
   ```
+
   `git version 2.x.x` と表示されればOK
 
 - **インストール方法**:
@@ -37,12 +40,15 @@
   - **Linux**: `sudo apt-get install git` (Ubuntu/Debian) または `sudo yum install git` (CentOS/RHEL)
 
 #### 2. **Docker**（コンテナ仮想化ツール）
+
 - **役割**: フロントエンド、バックエンド、データベースを統一環境で動かす
 - **インストール確認**:
+
   ```bash
   docker --version
   docker-compose --version
   ```
+
   両方のバージョンが表示されればOK
 
 - **インストール方法**:
@@ -54,31 +60,38 @@
 Dockerを使わずにローカルで開発する場合は、以下も必要です：
 
 #### 3. **Node.js**（JavaScriptランタイム）
+
 - **役割**: フロントエンド（Next.js）の実行環境
 - **推奨バージョン**: v18以上
 - **インストール確認**:
+
   ```bash
   node --version
   npm --version
   ```
+
   `v18.x.x` 以上と表示されればOK
 
 - **インストール方法**:
   - [Node.js公式サイト](https://nodejs.org/)からLTS版をダウンロード・インストール
 
 #### 4. **Go**（プログラミング言語）
+
 - **役割**: バックエンドAPIサーバーの実行環境
 - **推奨バージョン**: 1.23以上
 - **インストール確認**:
+
   ```bash
   go version
   ```
+
   `go version go1.23.x` 以上と表示されればOK
 
 - **インストール方法**:
   - [Go公式サイト](https://go.dev/dl/)からダウンロード・インストール
 
 #### 5. **PostgreSQL**（データベース）
+
 - **役割**: ユーザー情報、スコア、問題などのデータ保存
 - **推奨バージョン**: 14以上
 - **インストール方法**:
@@ -181,7 +194,8 @@ GEMINI_API_KEY=__REPLACE_ME__
 AI_MODEL_NAME=gemini-1.5-flash
 ```
 
-**注意**: 
+**注意**:
+
 - `GEMINI_API_KEY` は後で [Google AI Studio](https://makersuite.google.com/app/apikey) から取得して設定します
 - Dockerを使う場合、`DATABASE_URL` のホスト名は `db` にしてください（Docker内部の名前解決のため）
 - ローカル環境で動かす場合は `localhost` に変更してください
@@ -222,6 +236,7 @@ docker-compose up --build
 ```
 
 **このコマンドの意味**:
+
 - `docker-compose`: Docker Composeコマンド
 - `up`: コンテナを起動
 - `--build`: Dockerイメージを最新のコードでビルドしてから起動
@@ -255,10 +270,12 @@ db_1        | database system is ready to accept connections
 docker-compose up -d
 ```
 
-**意味**: 
+**意味**:
+
 - `-d`: デタッチモード（バックグラウンド実行）
 
 ログを確認する場合：
+
 ```bash
 docker-compose logs -f
 ```
@@ -273,6 +290,7 @@ docker-compose exec db psql -U postgres -d cot_game
 ```
 
 **意味**:
+
 - `docker-compose exec`: 実行中のコンテナ内でコマンドを実行
 - `db`: データベースコンテナの名前
 - `psql`: PostgreSQLのコマンドラインツール
@@ -354,11 +372,13 @@ go run main.go
 ```
 
 **実行結果**:
+
 ```
 Server is running on port 8080
 ```
 
 **意味**:
+
 - `go mod download`: go.modに記載された依存パッケージをダウンロード
 - `go run main.go`: Goプログラムをコンパイル・実行
 
@@ -376,11 +396,13 @@ npm run dev
 ```
 
 **実行結果**:
+
 ```
 Ready on http://localhost:3000
 ```
 
 **意味**:
+
 - `npm install`: package.jsonに記載された依存パッケージをインストール
 - `npm run dev`: Next.js開発サーバーを起動（ホットリロード対応）
 
@@ -424,7 +446,7 @@ psql -U postgres -d cot_game -c "\dt"
 
 ```
               List of relations
- Schema |    Name    | Type  |  Owner   
+ Schema |    Name    | Type  |  Owner
 --------+------------+-------+----------
  public | questions  | table | postgres
  public | scores     | table | postgres
@@ -495,7 +517,8 @@ docker-compose logs -f backend
 docker-compose logs -f db
 ```
 
-**意味**: 
+**意味**:
+
 - `logs`: コンテナのログを表示
 - `-f`: フォローモード（リアルタイムで新しいログを表示）
 
@@ -520,6 +543,7 @@ docker-compose restart backend
 **原因**: ポート番号が他のプロセスで使用されている
 
 **解決方法**:
+
 ```bash
 # ポート使用状況を確認
 lsof -i :3000   # フロントエンド
@@ -534,6 +558,7 @@ lsof -i :5432   # PostgreSQL
 **原因**: Dockerデーモンが起動していない、または権限がない
 
 **解決方法**:
+
 ```bash
 # Docker Desktopが起動しているか確認
 # Linuxの場合、ユーザーをdockerグループに追加
@@ -546,6 +571,7 @@ sudo usermod -aG docker $USER
 #### エラー: "connection refused"
 
 **解決方法**:
+
 ```bash
 # コンテナの状態を確認
 docker-compose ps
@@ -562,6 +588,7 @@ docker-compose logs db
 #### ブラウザに何も表示されない
 
 **解決方法**:
+
 ```bash
 # フロントエンドのログを確認
 docker-compose logs frontend
@@ -575,6 +602,7 @@ docker-compose restart frontend
 ### 問題4: バックエンドAPIにアクセスできない
 
 **解決方法**:
+
 ```bash
 # バックエンドのログを確認
 docker-compose logs backend
@@ -589,6 +617,7 @@ cat backend/.env
 ### 問題5: マイグレーションが失敗する
 
 **解決方法**:
+
 ```bash
 # データベースコンテナに入る
 docker-compose exec db psql -U postgres -d cot_game
@@ -607,6 +636,7 @@ docker-compose up -d
 ### 問題6: `npm install` でエラーが出る
 
 **解決方法**:
+
 ```bash
 # npmのキャッシュをクリア
 npm cache clean --force
@@ -619,6 +649,7 @@ npm install
 ### 問題7: Goのビルドでエラーが出る
 
 **解決方法**:
+
 ```bash
 cd backend
 

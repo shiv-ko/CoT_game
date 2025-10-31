@@ -4,6 +4,7 @@ import React from 'react';
 import { Question } from '../../../../types/question';
 
 import styles from './QuestionsTable.module.css';
+import { QuestionTagList } from './QuestionTag';
 import { renderStars } from './utils';
 
 interface QuestionsTableProps {
@@ -27,6 +28,7 @@ const QuestionsTable: React.FC<QuestionsTableProps> = ({ questions }) => {
         <thead className={styles.tableHeader}>
           <tr>
             <th>難易度</th>
+            <th>タグ</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -34,6 +36,9 @@ const QuestionsTable: React.FC<QuestionsTableProps> = ({ questions }) => {
           {questions.map((question) => (
             <tr key={question.id}>
               <td className={styles.levelCell}>{renderStars(question.level)}</td>
+              <td className={styles.tagCell}>
+                <QuestionTagList tags={question.tags} />
+              </td>
               <td className={styles.actionCell}>
                 <Link href={`/questions/${question.id}`} className={styles.solveButton}>
                   解く

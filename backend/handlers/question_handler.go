@@ -30,7 +30,7 @@ func NewQuestionHandler(db *pgxpool.Pool) *QuestionHandler {
 // セキュリティ上、問題文と正解はクライアントに送信されません。
 func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	// 全ての問題を選択するクエリ。一貫性を保つためにlevelで並び替えます。
-	query := "SELECT id, level, problem_statement, correct_answer, created_at FROM questions ORDER BY level"
+	query := "SELECT id, level, problem_statement, correct_answer, tags, created_at FROM questions ORDER BY level"
 
 	rows, err := h.DB.Query(context.Background(), query)
 	if err != nil {
@@ -47,7 +47,7 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	for rows.Next() {
 		var q models.Question
 		// 行データをQuestion構造体にスキャンします。
-		if err := rows.Scan(&q.ID, &q.Level, &q.ProblemStatement, &q.CorrectAnswer, &q.CreatedAt); err != nil {
+		if err := rows.Scan(&q.ID, &q.Level, &q.ProblemStatement, &q.CorrectAnswer, &q.Tags, &q.CreatedAt); err != nil {
 			log.Printf("質問行のスキャン中にエラーが発生しました: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "質問データの処理に失敗しました。"})
 			return
@@ -70,12 +70,13 @@ func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	}
 
 	// 内部データをクライアント用のレスポンスに変換します。
-	// 問題文と正解を除外し、IDとレベルと作成日時のみを返します。
+	// 問題文と正解を除外し、IDとレベルとタグと作成日時のみを返します。
 	responses := make([]models.QuestionResponse, len(questions))
 	for i, q := range questions {
 		responses[i] = models.QuestionResponse{
 			ID:        q.ID,
 			Level:     q.Level,
+			Tags:      q.Tags,
 			CreatedAt: q.CreatedAt,
 		}
 	}

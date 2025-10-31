@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	// r0 は相対誤差がこの値のときにスコアが50点になる基準値（デフォルト: 5%）
-	// この値を調整することで、スコアの厳しさを変更できる
+	// r0 は相対誤差がこの値のときにスコアが50点になる基準値
+	// スケール適応型の場合は使用されない
 	r0 = 0.05
 
 	// p はロジスティック関数の曲率パラメータ（デフォルト: 2.0）
@@ -21,10 +21,22 @@ const (
 	// tolAbsHint は正解が0に近い場合のスケール補助値
 	// 相対誤差を計算する際の分母が0にならないようにする
 	tolAbsHint = 1e-2
+
+	// 整数スケール問題の閾値
+	// 正解の絶対値がこの値以下の場合、整数ベースのスコアリングを使用
+	integerScaleThreshold = 1000.0
+
+	// 整数スケールでの基準誤差数（この誤差で50点になる）
+	integerBaseError = 2.0
+
+	// 極小値（1未満）の場合の基準誤差数
+	// 正解が0.5など1未満の小数の場合、より厳しく評価する
+	smallValueBaseError = 0.5
 )
 
-// numberPattern は回答文から最初に現れる数値らしい文字列を抜き出すためのパターン。
+// numberPattern は回答文から全ての数値を抽出するためのパターン。
 // プラス・マイナス符号や小数点と整数部の組を想定したシンプルな正規表現にとどめている。
+// 複数の数値がある場合は、最後に出現するものを最終回答として採用する。
 var numberPattern = regexp.MustCompile(`[-+]?\d+(?:\.\d+)?`)
 
 // Evaluate は AI 回答を正解と比較し、数値の一致度に基づくスコア・抽出値・メタ情報を返す。
@@ -41,7 +53,7 @@ func Evaluate(answerText string, correct string) (score int, extracted *float64,
 		"correct_raw":     correct,
 		"answer_trimmed":  trimmedAnswer,
 		"correct_trimmed": trimmedCorrect,
-		"score_strategy":  "v2: score=100/(1+(rel/r0)^p)",
+		"score_strategy":  "v3: スケール適応型（整数問題は絶対誤差、大きな数は相対誤差）",
 		"r0":              r0,
 		"p":               p,
 	}
@@ -70,13 +82,19 @@ func Evaluate(answerText string, correct string) (score int, extracted *float64,
 		detail["correct_numeric"] = correctVal
 	}
 
-	// 回答内から数値らしき部分を抽出。見つからなければスコア 0 で終了。
-	matched := numberPattern.FindString(trimmedAnswer)
-	if matched == "" {
+	// 回答内から数値らしき部分を抽出。複数ある場合は最後のものを採用。
+	// AIの説明的な回答では、最終的な答えが文末に来ることが多いため。
+	allMatches := numberPattern.FindAllString(trimmedAnswer, -1)
+	if len(allMatches) == 0 {
 		mode = "no_numeric"
 		score = 0
 		detail["mode_reason"] = "回答に数値が含まれていない"
 		return
+	}
+	matched := allMatches[len(allMatches)-1] // 最後の数値を採用
+	if len(allMatches) > 1 {
+		detail["all_numbers_found"] = allMatches
+		detail["extraction_note"] = "複数の数値が見つかったため、最後のものを最終回答として採用"
 	}
 
 	// 正規表現で得た文字列を float に変換できるか確認する。
@@ -108,19 +126,33 @@ func Evaluate(answerText string, correct string) (score int, extracted *float64,
 
 		detail["absolute_diff"] = diff
 
-		// 相対誤差を計算（正解が0に近い場合はtolAbsHintを使用）
-		relativeError := calculateRelativeError(diff, correctVal)
-		detail["relative_error"] = relativeError
-
-		score = computeScore(relativeError)
-		detail["normalized_score"] = score
 		if diff == 0 {
 			mode = "numeric_exact"
+			score = 100
 			detail["mode_reason"] = "数値比較で誤差が0"
-		} else {
-			mode = "numeric_score"
-			detail["mode_reason"] = "相対誤差に基づき連続スコアを算出（v2）"
+			detail["normalized_score"] = score
+			return
 		}
+
+		// 正解の大きさに応じてスコアリング方式を選択
+		absCorrect := math.Abs(correctVal)
+		if absCorrect <= integerScaleThreshold {
+			// 整数スケール問題：絶対誤差ベースでスコアリング
+			score = computeIntegerScaleScore(diff, absCorrect)
+			mode = "numeric_score_integer"
+			detail["mode_reason"] = "整数スケール問題として絶対誤差ベースで評価（v3）"
+			detail["scale_type"] = "integer"
+			detail["base_error"] = integerBaseError
+		} else {
+			// 大きな数の問題：相対誤差ベースでスコアリング
+			relativeError := calculateRelativeError(diff, correctVal)
+			detail["relative_error"] = relativeError
+			score = computeScore(relativeError)
+			mode = "numeric_score_relative"
+			detail["mode_reason"] = "大規模数値問題として相対誤差ベースで評価（v3）"
+			detail["scale_type"] = "relative"
+		}
+		detail["normalized_score"] = score
 		return
 	}
 
@@ -159,6 +191,45 @@ func calculatePreciseDiff(correctStr string, extractedStr string) (diff float64,
 func calculateRelativeError(absoluteDiff float64, correctVal float64) float64 {
 	denominator := math.Max(math.Abs(correctVal), tolAbsHint)
 	return absoluteDiff / denominator
+}
+
+// computeIntegerScaleScore は整数スケールの問題に対して絶対誤差ベースでスコアを計算する。
+// 正解が小さい整数（例: 3）の場合、相対誤差ではなく絶対誤差で評価する方が適切。
+//
+// スコアリング方式:
+// - 誤差0: 100点
+// - 誤差1: 75点（1つずれ）
+// - 誤差2: 50点（2つずれ、基準値）
+// - 誤差3: 30点
+// - 誤差4: 18点
+// - 誤差5以上: 10点以下に急速に減少
+//
+// 数式: score = 100 / (1 + (diff/base)^p)
+// ここで base = integerBaseError (デフォルト: 2.0)
+func computeIntegerScaleScore(absoluteDiff float64, correctVal float64) int {
+	if absoluteDiff <= 0 {
+		return 100
+	}
+
+	// 正解が極小（絶対値1未満）の場合は、より厳しい評価
+	base := integerBaseError
+	if math.Abs(correctVal) < 1.0 {
+		base = smallValueBaseError
+	}
+
+	// ロジスティック関数: score = 100 / (1 + (diff/base)^p)
+	ratio := absoluteDiff / base
+	raw := 100.0 / (1.0 + math.Pow(ratio, p))
+
+	// スコアを0-100の範囲に制限
+	if raw < 0 {
+		raw = 0
+	}
+	if raw > 100 {
+		raw = 100
+	}
+
+	return int(math.Round(raw))
 }
 
 // computeScore は相対誤差に基づいてロジスティック関数でスコアを計算する。

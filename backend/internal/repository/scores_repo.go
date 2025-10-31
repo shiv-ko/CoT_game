@@ -25,7 +25,7 @@ type Score struct {
 	AnswerNumber     *float64               `json:"answer_number"`
 	LatencyMs        int                    `json:"latency_ms"`        // AI 応答までの時間（ミリ秒）。体験の快適さを可視化するために保存します。
 	EvaluationDetail map[string]interface{} `json:"evaluation_detail"` // 採点結果の詳細メモ。採点ロジックが増えても柔軟に持てるように JSONB で保存。
-	SubmittedAt      time.Time              `json:"submitted_at"`      // DB 側で決まる投稿時刻。履歴ソートや期間集計に必須です。
+	CreatedAt        time.Time              `json:"created_at"`        // DB 側で決まる投稿時刻。履歴ソートや期間集計に必須です。
 }
 
 // LeaderboardRow はランキング結果の1行を表します。
@@ -95,13 +95,13 @@ func (r *scoresRepo) Create(ctx context.Context, record *Score) error {
 		INSERT INTO scores (
 			user_id, question_id, prompt, ai_response, score,
 			model_vendor, model_name, answer_number, latency_ms, evaluation_detail,
-			submitted_at
+			created_at
 		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-		RETURNING id, submitted_at
+		RETURNING id, created_at
 	`
 
 	// QueryRowContext は 1 行だけ返るクエリを実行し、Scan で構造体に詰めます。
-	// returning で ID と submitted_at を受け取ることで、呼び出し側が直後に利用できます。
+	// returning で ID と created_at を受け取ることで、呼び出し側が直後に利用できます。
 	err := r.db.QueryRowContext(
 		ctx,
 		query,
@@ -116,7 +116,7 @@ func (r *scoresRepo) Create(ctx context.Context, record *Score) error {
 		record.LatencyMs,
 		detailJSON,
 		time.Now(), // Go 側で現在時刻をセットしておくと、呼び出しが終わった時点で値が分かります。
-	).Scan(&record.ID, &record.SubmittedAt)
+	).Scan(&record.ID, &record.CreatedAt)
 	if err != nil {
 		// %w を使うと元のエラー情報を保ったまま上位に伝えられ、原因調査が容易になります。
 		return fmt.Errorf("failed to insert score: %w", err)
@@ -132,9 +132,9 @@ func (r *scoresRepo) FindLeaderboard(ctx context.Context, period string, limit i
 	var whereClause string
 	switch period {
 	case "day":
-		whereClause = "AND s.submitted_at >= NOW() - INTERVAL '1 day'"
+		whereClause = "AND s.created_at >= NOW() - INTERVAL '1 day'"
 	case "week":
-		whereClause = "AND s.submitted_at >= NOW() - INTERVAL '7 days'"
+		whereClause = "AND s.created_at >= NOW() - INTERVAL '7 days'"
 	case "all":
 		whereClause = ""
 	default:
@@ -148,7 +148,7 @@ func (r *scoresRepo) FindLeaderboard(ctx context.Context, period string, limit i
 			COALESCE(u.username, 'guest') as username,
 			MAX(s.score) as best_score,
 			COUNT(*) as attempts,
-			MAX(s.submitted_at) as last_at
+			MAX(s.created_at) as last_at
 		FROM scores s
 		LEFT JOIN users u ON s.user_id = u.id
 		WHERE 1=1 %s
@@ -196,15 +196,15 @@ func (r *scoresRepo) FindLeaderboard(ctx context.Context, period string, limit i
 
 // FindUserScores は指定されたユーザーのスコア履歴を取得します。
 func (r *scoresRepo) FindUserScores(ctx context.Context, userID int, limit int) ([]Score, error) {
-	// ORDER BY submitted_at DESC で最新回答から順に並べ替えます。
+	// ORDER BY created_at DESC で最新回答から順に並べ替えます。
 	query := `
 		SELECT
 			id, user_id, question_id, prompt, ai_response, score,
 			model_vendor, model_name, answer_number, latency_ms,
-			evaluation_detail, submitted_at
+			evaluation_detail, created_at
 		FROM scores
 		WHERE user_id = $1
-		ORDER BY submitted_at DESC
+		ORDER BY created_at DESC
 		LIMIT $2
 	`
 
@@ -237,7 +237,7 @@ func (r *scoresRepo) FindUserScores(ctx context.Context, userID int, limit int) 
 			&s.AnswerNumber,
 			&s.LatencyMs,
 			&detailJSON,
-			&s.SubmittedAt,
+			&s.CreatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan score row: %w", err)

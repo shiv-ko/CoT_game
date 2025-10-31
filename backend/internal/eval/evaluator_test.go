@@ -44,29 +44,29 @@ func TestEvaluate(t *testing.T) {
 			expectMode:       "numeric_exact",
 			expectExtracted:  floatPtr(10.0),
 			expectAbsDiff:    floatPtr(0.0),
-			expectRelDiff:    floatPtr(0.0),
+			expectRelDiff:    nil, // 完全一致では相対誤差を計算しない
 			expectNormalized: true,
 		},
 		{
 			name:             "SmallRelativeError_0.09percent",
 			answer:           "The result is 9.991",
 			correct:          "10",
-			expectScore:      computeScore(calculateRelativeError(0.009, 10)),
-			expectMode:       "numeric_score",
+			expectScore:      computeIntegerScaleScore(0.009, 10), // 整数スケール評価
+			expectMode:       "numeric_score_integer",
 			expectExtracted:  floatPtr(9.991),
 			expectAbsDiff:    floatPtr(0.009),
-			expectRelDiff:    floatPtr(0.0009), // 0.009/10 = 0.09%
+			expectRelDiff:    nil, // 整数スケールでは相対誤差を計算しない
 			expectNormalized: true,
 		},
 		{
 			name:             "SmallRelativeError_0.11percent",
 			answer:           "9.989",
 			correct:          "10",
-			expectScore:      computeScore(calculateRelativeError(0.011, 10)),
-			expectMode:       "numeric_score",
+			expectScore:      computeIntegerScaleScore(0.011, 10), // 整数スケール評価
+			expectMode:       "numeric_score_integer",
 			expectExtracted:  floatPtr(9.989),
 			expectAbsDiff:    floatPtr(0.011),
-			expectRelDiff:    floatPtr(0.0011), // 0.011/10 = 0.11%
+			expectRelDiff:    nil, // 整数スケールでは相対誤差を計算しない
 			expectNormalized: true,
 		},
 		{
@@ -77,14 +77,14 @@ func TestEvaluate(t *testing.T) {
 			expectMode:  "no_numeric",
 		},
 		{
-			name:             "MultipleNumbersUsesFirst",
+			name:             "MultipleNumbersUsesLast",
 			answer:           "First 11 then 10",
 			correct:          "10",
-			expectScore:      computeScore(calculateRelativeError(1.0, 10)),
-			expectMode:       "numeric_score",
-			expectExtracted:  floatPtr(11.0),
-			expectAbsDiff:    floatPtr(1.0),
-			expectRelDiff:    floatPtr(0.1), // 1.0/10 = 10%
+			expectScore:      100, // 最後の数値(10)が正解と一致
+			expectMode:       "numeric_exact",
+			expectExtracted:  floatPtr(10.0), // 最後の数値を採用
+			expectAbsDiff:    floatPtr(0.0),
+			expectRelDiff:    nil,
 			expectNormalized: true,
 		},
 		{
@@ -102,11 +102,11 @@ func TestEvaluate(t *testing.T) {
 			name:             "DecimalPrecision",
 			answer:           "3.1415",
 			correct:          "3.1416",
-			expectScore:      computeScore(calculateRelativeError(0.0001, 3.1416)),
-			expectMode:       "numeric_score",
+			expectScore:      computeIntegerScaleScore(0.0001, 3.1416), // 整数スケール評価
+			expectMode:       "numeric_score_integer",
 			expectExtracted:  floatPtr(3.1415),
 			expectAbsDiff:    floatPtr(0.0001),
-			expectRelDiff:    floatPtr(0.0001 / 3.1416), // 約0.003%
+			expectRelDiff:    nil, // 整数スケールでは相対誤差を計算しない
 			expectNormalized: true,
 		},
 		{
@@ -129,22 +129,55 @@ func TestEvaluate(t *testing.T) {
 			name:             "LargeNumber_SmallRelativeError",
 			answer:           "1000.1",
 			correct:          "1000",
-			expectScore:      computeScore(calculateRelativeError(0.1, 1000)),
-			expectMode:       "numeric_score",
+			expectScore:      computeIntegerScaleScore(0.1, 1000), // 1000は整数スケール範囲内
+			expectMode:       "numeric_score_integer",
 			expectExtracted:  floatPtr(1000.1),
 			expectAbsDiff:    floatPtr(0.1),
-			expectRelDiff:    floatPtr(0.0001), // 0.1/1000 = 0.01%
+			expectRelDiff:    nil, // 整数スケールでは相対誤差を計算しない
 			expectNormalized: true,
 		},
 		{
-			name:             "5PercentError_ShouldBe50Points",
-			answer:           "10.5",
-			correct:          "10",
-			expectScore:      50, // 相対誤差5%でスコア50点
-			expectMode:       "numeric_score",
-			expectExtracted:  floatPtr(10.5),
-			expectAbsDiff:    floatPtr(0.5),
-			expectRelDiff:    floatPtr(0.05), // 0.5/10 = 5%
+			name:             "IntegerScale_Diff1_ShouldBe80Points",
+			answer:           "2",
+			correct:          "3",
+			expectScore:      80, // 誤差1で80点（実際の計算結果）
+			expectMode:       "numeric_score_integer",
+			expectExtracted:  floatPtr(2.0),
+			expectAbsDiff:    floatPtr(1.0),
+			expectRelDiff:    nil,
+			expectNormalized: true,
+		},
+		{
+			name:             "IntegerScale_Diff2_ShouldBe50Points",
+			answer:           "5",
+			correct:          "3",
+			expectScore:      50, // 誤差2で50点（基準値）
+			expectMode:       "numeric_score_integer",
+			expectExtracted:  floatPtr(5.0),
+			expectAbsDiff:    floatPtr(2.0),
+			expectRelDiff:    nil,
+			expectNormalized: true,
+		},
+		{
+			name:             "VeryLargeNumber_UseRelativeError",
+			answer:           "10100",
+			correct:          "10000",
+			expectScore:      computeScore(calculateRelativeError(100, 10000)), // 相対誤差1%
+			expectMode:       "numeric_score_relative",
+			expectExtracted:  floatPtr(10100.0),
+			expectAbsDiff:    floatPtr(100.0),
+			expectRelDiff:    floatPtr(0.01), // 100/10000 = 1%
+			expectNormalized: true,
+		},
+		{
+			name:             "NegativeSmallValue_ShouldUseSmallValueBase",
+			answer:           "-0.3",
+			correct:          "-0.5",
+			expectScore:      computeIntegerScaleScore(0.2, -0.5), // 負の小数でもsmallValueBaseErrorを使用
+			expectMode:       "numeric_score_integer",
+			expectExtracted:  floatPtr(-0.3),
+			expectAbsDiff:    floatPtr(0.2),
+			expectRelDiff:    nil,
 			expectNormalized: true,
 		},
 	}
@@ -202,10 +235,11 @@ func TestEvaluate(t *testing.T) {
 				}
 			}
 
-			// 相対誤差の検証
+			// 相対誤差の検証（相対誤差モードの場合のみ）
 			relDiffValue, relDiffOK := detail["relative_error"].(float64)
 			if tc.expectRelDiff == nil {
-				if relDiffOK {
+				// 整数スケールモードでは相対誤差が計算されないことを確認
+				if relDiffOK && mode != "extracted_only" {
 					t.Fatalf("unexpected relative_error detail: %v", relDiffValue)
 				}
 			} else {
