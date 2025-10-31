@@ -34,7 +34,7 @@ const (
 	smallValueBaseError = 0.5
 )
 
-// numberPattern は回答文から数値らしい文字列を抜き出すためのパターン。
+// numberPattern は回答文から全ての数値を抽出するためのパターン。
 // プラス・マイナス符号や小数点と整数部の組を想定したシンプルな正規表現にとどめている。
 // 複数の数値がある場合は、最後に出現するものを最終回答として採用する。
 var numberPattern = regexp.MustCompile(`[-+]?\d+(?:\.\d+)?`)
@@ -211,9 +211,9 @@ func computeIntegerScaleScore(absoluteDiff float64, correctVal float64) int {
 		return 100
 	}
 
-	// 正解が極小（1未満）の場合は、より厳しい評価
+	// 正解が極小（絶対値1未満）の場合は、より厳しい評価
 	base := integerBaseError
-	if correctVal < 1.0 {
+	if math.Abs(correctVal) < 1.0 {
 		base = smallValueBaseError
 	}
 

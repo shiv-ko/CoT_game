@@ -169,6 +169,17 @@ func TestEvaluate(t *testing.T) {
 			expectRelDiff:    floatPtr(0.01), // 100/10000 = 1%
 			expectNormalized: true,
 		},
+		{
+			name:             "NegativeSmallValue_ShouldUseSmallValueBase",
+			answer:           "-0.3",
+			correct:          "-0.5",
+			expectScore:      computeIntegerScaleScore(0.2, -0.5), // 負の小数でもsmallValueBaseErrorを使用
+			expectMode:       "numeric_score_integer",
+			expectExtracted:  floatPtr(-0.3),
+			expectAbsDiff:    floatPtr(0.2),
+			expectRelDiff:    nil,
+			expectNormalized: true,
+		},
 	}
 
 	for _, tc := range testcases {
