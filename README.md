@@ -57,15 +57,15 @@
 <!-- prettier-ignore -->
 **トップページ**
 
-![トップページ](docs/images/home.png)
+<img src="docs/images/home.png" alt="トップページ" width="600">
 
 **問題解答画面**
 
-![問題解答画面](docs/images/play.png)
+<img src="docs/images/play.png" alt="問題解答画面" width="600">
 
 **正解画面**
 
-![正解画面](docs/images/result.png)
+<img src="docs/images/result.png" alt="正解画面" width="600">
 
 _上記はローカル環境での実行画面です。_
 
