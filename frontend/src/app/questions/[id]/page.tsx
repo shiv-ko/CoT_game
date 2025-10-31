@@ -8,6 +8,7 @@ import { Question } from '../../../../types/question';
 import { SolveRequest, SolveResponse } from '../../../../types/solve';
 import { QuestionTagList, PromptTips } from '../components/QuestionTag';
 
+import { LoadingQuote } from './components/LoadingQuote';
 import SolveResult from './components/SolveResult';
 import styles from './QuestionDetail.module.css';
 
@@ -161,6 +162,9 @@ export default function QuestionDetailPage() {
 
   return (
     <div className={styles.container}>
+      {/* ローディング画面 */}
+      {submitting && <LoadingQuote />}
+
       {/* ヘッダー */}
       <div className={styles.header}>
         <button onClick={handleBackToList} className={styles.backButton}>

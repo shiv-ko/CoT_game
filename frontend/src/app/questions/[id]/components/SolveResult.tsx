@@ -42,10 +42,10 @@ function getScoreMessage(score: number): string {
     return '素晴らしい!';
   }
   if (score >= 70) {
-    return 'よくできました!';
+    return 'もう少しです!';
   }
   if (score >= 50) {
-    return 'もう少し頑張りましょう';
+    return '頑張りましょう';
   }
   return '再挑戦してみましょう';
 }
