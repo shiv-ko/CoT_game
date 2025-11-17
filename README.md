@@ -55,8 +55,9 @@
 ### 3. デモ / スクリーンショット（Optional）
 
 **デモ動画**
+[![デモ動画](https://github.com/user-attachments/assets/b13905bd-99fb-45d5-8f30-b18b7ca6696d)](https://youtu.be/t0AFlWnFCe0)
 
-https://youtu.be/t0AFlWnFCe0
+
 
 <!-- prettier-ignore -->
 **トップページ**
