@@ -1,0 +1,54 @@
+name: docs-openapi-html
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-openapi-html:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Generate OpenAPI Spec (swag)
+        run: |
+          cd backend
+          swag init
+          # swaggo generates docs/swagger.yaml by default
+          # We need to move/verify it for the next step, or just point redocly to it.
+          # default output is docs/swagger.yaml
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Redocly CLI を npx 経由で使って単一HTMLを生成
+      - name: Build OpenAPI HTML (Redocly)
+        run: |
+          mkdir -p dist/api-docs
+          # swaggo output is in backend/docs/swagger.yaml
+          npx -y @redocly/cli build-docs backend/docs/swagger.yaml -o dist/api-docs/index.html
+
+      - name: Upload artifact (API Docs HTML)
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-docs-html
+          path: dist/api-docs

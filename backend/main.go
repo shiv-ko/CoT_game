@@ -21,12 +21,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // docs code generation
 	"github.com/shiv/CoT_game/backend/handlers"
 	"github.com/shiv/CoT_game/backend/internal/ai"
 	"github.com/shiv/CoT_game/backend/internal/repository"
 	"github.com/shiv/CoT_game/backend/routes"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           CoT Game API
+// @version         1.0
+// @description     This is the API server for the CoT Game application.
+// @host            localhost:8080
+// @BasePath        /api/v1
 
 // init は main() の前に実行され、.env ファイルから環境変数を読み込みます。
 // これにより、DATABASE_URL のような必要な設定がすべて利用可能になります。
@@ -139,6 +147,9 @@ func run(ctx context.Context) error {
 			"message": "pong",
 		})
 	})
+
+	// Swagger settings
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// サーバーを起動し、ポート8080でリッスンします。
 	log.Println("サーバーを http://localhost:8080 で起動します")

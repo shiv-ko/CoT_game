@@ -57,6 +57,18 @@ type SolveResponse struct {
 // PostSolve は POST /api/v1/solve のハンドラです。
 // リクエストのバリデーションをして、問題なかったら保存のリポジトリに投げる。
 // ユーザーのプロンプトをAIに送信し、評価してDBに保存します。
+// PostSolve godoc
+// @Summary      Solve a question
+// @Description  Submit a prompt to solve a question using AI
+// @Tags         solve
+// @Accept       json
+// @Produce      json
+// @Param        request body handlers.SolveRequest true "Solve Request"
+// @Success      200  {object}  handlers.SolveResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /solve [post]
 func (h *SolveHandler) PostSolve(c *gin.Context) {
 	var req SolveRequest
 

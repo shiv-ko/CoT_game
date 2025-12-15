@@ -1,0 +1,176 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the API server for the CoT Game application.",
+    "title": "CoT Game API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "localhost:8080",
+  "basePath": "/api/v1",
+  "paths": {
+    "/questions": {
+      "get": {
+        "description": "Get all questions with limited details (no problem statement/answer)",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["questions"],
+        "summary": "Get list of questions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/models.QuestionResponse"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/solve": {
+      "post": {
+        "description": "Submit a prompt to solve a question using AI",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "tags": ["solve"],
+        "summary": "Solve a question",
+        "parameters": [
+          {
+            "description": "Solve Request",
+            "name": "request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/handlers.SolveRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/handlers.SolveResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "handlers.SolveRequest": {
+      "type": "object",
+      "required": ["prompt", "question_id"],
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "question_id": {
+          "type": "integer"
+        }
+      }
+    },
+    "handlers.SolveResponse": {
+      "type": "object",
+      "properties": {
+        "ai_output": {
+          "description": "AI が出力したテキスト全文。クライアントで表示します。",
+          "type": "string"
+        },
+        "answer_number": {
+          "description": "数値回答が抽出できた場合のみ値が入ります（例: 算数の答え）。",
+          "type": "number"
+        },
+        "elapsed_ms": {
+          "description": "AI 応答までにかかった時間（ミリ秒）。",
+          "type": "integer"
+        },
+        "evaluation": {
+          "description": "評価モードなどの補足情報。UI の詳細表示に役立ちます。",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "model_name": {
+          "type": "string"
+        },
+        "model_vendor": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "question_id": {
+          "type": "integer"
+        },
+        "saved": {
+          "description": "DB 保存が成功したかどうか。false でもスコア自体は返します。",
+          "type": "boolean"
+        },
+        "score": {
+          "description": "評価ロジックで決まった点数。100 点満点を想定。",
+          "type": "integer"
+        }
+      }
+    },
+    "models.QuestionResponse": {
+      "type": "object",
+      "properties": {
+        "created_at": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "level": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

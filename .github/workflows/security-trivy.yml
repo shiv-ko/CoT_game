@@ -1,0 +1,30 @@
+name: security-trivy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # リポジトリ全体（Go/Node依存、設定、秘密情報っぽいもの）をまとめてスキャン
+      - name: Trivy filesystem scan (vuln + misconfig + secret)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          vuln-type: os,library
+
+      # 失敗させたい場合（課題で「検出できた」を示したいなら最初はfailしないのもアリ）
+      # - fail-build: true 相当の制御を厳密にしたい場合は後で調整

@@ -28,6 +28,15 @@ func NewQuestionHandler(db *pgxpool.Pool) *QuestionHandler {
 // データベースのクエリやデータスキャン中に発生しうるエラーをハンドリングし、
 // 適切なHTTPステータスコードとエラーメッセージを返します。
 // セキュリティ上、問題文と正解はクライアントに送信されません。
+// GetQuestions godoc
+// @Summary      Get list of questions
+// @Description  Get all questions with limited details (no problem statement/answer)
+// @Tags         questions
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   models.QuestionResponse
+// @Failure      500  {object}  map[string]string
+// @Router       /questions [get]
 func (h *QuestionHandler) GetQuestions(c *gin.Context) {
 	// 全ての問題を選択するクエリ。一貫性を保つためにlevelで並び替えます。
 	query := "SELECT id, level, problem_statement, correct_answer, tags, created_at FROM questions ORDER BY level"
