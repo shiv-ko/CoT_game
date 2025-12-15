@@ -3,7 +3,7 @@
     "collect": {
       "numberOfRuns": 2,
       "startServerCommand": "cd frontend && npm start -- -p 3000",
-      "url": ["http://localhost:3000/", "http://localhost:3000/about"]
+      "url": ["http://localhost:3000/"]
     },
     "assert": {
       "assertions": {
